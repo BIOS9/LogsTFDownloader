@@ -2,7 +2,7 @@
 
 namespace RawLogManager.Configuration
 {
-    interface IRawLogManagerConfiguration
+    public interface IRawLogManagerConfiguration
     {
         /**
          * <summary>Time between an import finishing and the next one starting.</summary>
