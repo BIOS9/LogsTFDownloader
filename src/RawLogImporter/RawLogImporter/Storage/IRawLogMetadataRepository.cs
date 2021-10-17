@@ -1,6 +1,6 @@
 ﻿namespace RawLogManager.Storage
 {
-    internal interface IRawLogMetadataRepository
+    public interface IRawLogMetadataRepository
     {
     }
 }

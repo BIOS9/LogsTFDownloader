@@ -2,12 +2,18 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RawLogManager.Configuration;
+using RawLogManager.Import;
+using RawLogManager.Storage;
 using System;
 
 namespace RawLogManager
 {
     public class RawLogManager
     {
+        public readonly IRawLogImportScheduler rawLogImportScheduler;
+        public readonly IRawLogMetadataRepository rawLogMetadataRepository;
+        public readonly IRawLogRepository rawLogRepository;
+
         public RawLogManager(
             ILoggerFactory loggerFactory,
             IConfiguration configuration)
@@ -16,20 +22,9 @@ namespace RawLogManager
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
             IContainer dependencyContainer = DependencyContainerConfig.Configure(loggerFactory, configuration);
-            using (ILifetimeScope dependencyScope = dependencyContainer.BeginLifetimeScope())
-            {
-
-            }
-        }
-
-        public async void Start()
-        {
-
-        }
-
-        public async void Stop()
-        {
-
+            rawLogImportScheduler = dependencyContainer.Resolve<IRawLogImportScheduler>();
+            rawLogMetadataRepository = dependencyContainer.Resolve<IRawLogMetadataRepository>();
+            rawLogRepository = dependencyContainer.Resolve<IRawLogRepository>();
         }
     }
 }

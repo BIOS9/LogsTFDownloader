@@ -1,6 +1,6 @@
 ﻿namespace RawLogManager.Import
 {
-    internal interface IRawLogImportScheduler
+    public interface IRawLogImportScheduler
     {
     }
 }

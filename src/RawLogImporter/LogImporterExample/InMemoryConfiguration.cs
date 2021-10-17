@@ -2,7 +2,7 @@
 
 namespace RawLogManager.Configuration
 {
-    public class InMemoryConfiguration : IRawLogManagerConfiguration
+    public class InMemoryConfiguration
     {
         public TimeSpan ImportDelay { get; private set; }
         public int RateLimitBurstCount { get; private set; }
