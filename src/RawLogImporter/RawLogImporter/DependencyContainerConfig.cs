@@ -4,6 +4,10 @@ using Microsoft.Extensions.Logging;
 using LogChugger.Remote;
 using LogChugger.Remote.LogsTFApi;
 using LogChugger.Storage;
+using LogChugger.Import;
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace LogChugger
 {
@@ -20,13 +24,23 @@ namespace LogChugger
             ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {
+            //var services = new ServiceCollection();
+            //services.AddOptions<DelayImportSchedulerSettings>().
+            //services.Configure<DelayImportSchedulerSettings>();
+            //var serviceProvider = services.BuildServiceProvider();
+
             var builder = new ContainerBuilder();
             builder.RegisterInstance(configuration).SingleInstance();
             builder.RegisterInstance(loggerFactory).SingleInstance();
+            
+            builder.RegisterType<DelayImportScheduler>().As<IRawLogImportScheduler>();
+            builder.RegisterInstance(configuration.GetRequiredSection(DelayImportSchedulerSettings.SectionName)
+                .Get<DelayImportSchedulerSettings>());
+
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
+
             builder.RegisterType<MySqlMetadataRepository>().As<IRawLogMetadataRepository>();
             builder.RegisterType<DiskLogRepository>().As<IRawLogRepository>();
-
 
             return builder.Build();
         }

@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LogChugger.Import
 {
@@ -10,7 +14,15 @@ namespace LogChugger.Import
      */
     internal class DelayImportScheduler : IRawLogImportScheduler
     {
+        private ILogger logger;
+        private DelayImportSchedulerSettings settings;
         private CancellationTokenSource stopTokenSource = null;
+
+        public DelayImportScheduler(ILoggerFactory loggerFactory, DelayImportSchedulerSettings settings)
+        {
+            logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
+            this.settings = settings;
+        }
 
         public async void Start()
         {
@@ -22,7 +34,7 @@ namespace LogChugger.Import
             }
             while (!stopTokenSource.IsCancellationRequested)
             {
-
+                await Task.Delay(settings.ImportDelay);
             }
         }
 
