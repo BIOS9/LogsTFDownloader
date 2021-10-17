@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawLogManager.Remote
+namespace LogChugger.Remote
 {
     interface IRemoteLogSource
     {

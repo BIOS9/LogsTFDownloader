@@ -1,4 +1,4 @@
-﻿namespace RawLogManager.Import
+﻿namespace LogChugger.Import
 {
     internal interface IRawLogImporter
     {

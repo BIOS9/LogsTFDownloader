@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RawLogManager.Configuration
+namespace LogChugger.Configuration
 {
     public class InMemoryConfiguration
     {

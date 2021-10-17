@@ -1,4 +1,4 @@
-﻿namespace RawLogManager.Storage
+﻿namespace LogChugger.Storage
 {
     internal class DiskLogRepository : IRawLogRepository
     {

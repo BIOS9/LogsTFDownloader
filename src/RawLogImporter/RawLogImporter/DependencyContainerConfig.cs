@@ -1,11 +1,11 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RawLogManager.Remote;
-using RawLogManager.Remote.LogsTFApi;
-using RawLogManager.Storage;
+using LogChugger.Remote;
+using LogChugger.Remote.LogsTFApi;
+using LogChugger.Storage;
 
-namespace RawLogManager
+namespace LogChugger
 {
     /// <summary>
     /// Dependency injection setup/configuration.

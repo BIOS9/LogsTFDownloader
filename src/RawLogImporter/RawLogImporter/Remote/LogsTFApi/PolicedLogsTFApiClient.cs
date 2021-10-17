@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawLogManager.Remote.LogsTFApi
+namespace LogChugger.Remote.LogsTFApi
 {
     class PolicedLogsTFApiClient : LogsTFApiClient
     {

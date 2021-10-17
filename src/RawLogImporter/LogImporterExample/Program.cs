@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LogChugger;
+using System;
 
 namespace LogImporterExample
 {
@@ -6,7 +7,7 @@ namespace LogImporterExample
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            RawLogManager logManager = new RawLogManager();
         }
     }
 }

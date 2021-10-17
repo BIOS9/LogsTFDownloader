@@ -1,12 +1,11 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RawLogManager.Configuration;
-using RawLogManager.Import;
-using RawLogManager.Storage;
+using LogChugger.Import;
+using LogChugger.Storage;
 using System;
 
-namespace RawLogManager
+namespace LogChugger
 {
     public class RawLogManager
     {
