@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Extensions.Configuration;
+using RawLogManager.Configuration;
+using System;
 
 namespace RawLogManager
 {
     public class RawLogManager
     {
-        public readonly Configuration.Configuration configuration;
+        public readonly RawLogManagerConfiguration configuration;
 
-        public RawLogManager(Configuration.Configuration configuration)
+        public RawLogManager(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
         }
 
         public async void Start()
