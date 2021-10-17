@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LogChugger.Storage
 {
@@ -7,6 +8,15 @@ namespace LogChugger.Storage
     /// </summary>
     internal class MySqlMetadataRepository : IRawLogMetadataRepository
     {
+        private readonly MySqlMetadataRepositorySettings settings;
+
+        public MySqlMetadataRepository(MySqlMetadataRepositorySettings settings)
+        {
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
+
+
+
         /// <inheritdoc/>
         public ICollection<int> GetUnassignedLogIDs(int max)
         {

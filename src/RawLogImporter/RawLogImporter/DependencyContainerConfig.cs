@@ -35,6 +35,8 @@ namespace LogChugger
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
 
             builder.RegisterType<MySqlMetadataRepository>().As<IRawLogMetadataRepository>();
+            builder.RegisterInstance(configuration.GetRequiredSection(MySqlMetadataRepositorySettings.SectionName)
+                .Get<MySqlMetadataRepositorySettings>());
             builder.RegisterType<DiskLogRepository>().As<IRawLogRepository>();
 
             return builder.Build();
