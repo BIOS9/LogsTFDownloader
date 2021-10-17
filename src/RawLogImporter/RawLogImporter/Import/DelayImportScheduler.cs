@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using LogChugger.Remote;
+using LogChugger.Storage;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,11 +17,19 @@ namespace LogChugger.Import
         private DelayImportSchedulerSettings settings;
         private CancellationTokenSource stopTokenSource = null;
         private object startStopLock = new object();
+        private IRemoteLogSource remoteLogSource;
+        private IRawLogMetadataRepository metadataRepository;
 
-        public DelayImportScheduler(ILoggerFactory loggerFactory, DelayImportSchedulerSettings settings)
+        public DelayImportScheduler(
+            ILoggerFactory loggerFactory, 
+            DelayImportSchedulerSettings settings,
+            IRemoteLogSource remoteLogSource,
+            IRawLogMetadataRepository metadataRepository)
         {
             logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
             this.settings = settings;
+            this.remoteLogSource = remoteLogSource;
+            this.metadataRepository = metadataRepository;
         }
 
         public async void Start()
@@ -35,8 +42,16 @@ namespace LogChugger.Import
             }
             while (!stopTokenSource.IsCancellationRequested)
             {
-                logger.LogInformation(settings.ImportDelay.ToString());
-                await Task.Delay(settings.ImportDelay);
+                try
+                {
+                    int latestLogID = await remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
+                    logger.LogInformation(latestLogID.ToString());
+                    await Task.Delay(settings.ImportDelay);
+                }
+                catch(IOException ex)
+                {
+                    logger.LogError(ex, "Failed to download resource from remote.");
+                }
             }
         }
 

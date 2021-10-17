@@ -13,6 +13,7 @@ namespace LogImporterExample
             Log.Logger = new LoggerConfiguration()
               .Enrich.FromLogContext()
               .WriteTo.Console()
+              .MinimumLevel.Verbose()
               .CreateLogger();
 
             IConfigurationRoot config = new ConfigurationBuilder()

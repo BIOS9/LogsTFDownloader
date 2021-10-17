@@ -24,11 +24,6 @@ namespace LogChugger
             ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {
-            //var services = new ServiceCollection();
-            //services.AddOptions<DelayImportSchedulerSettings>().
-            //services.Configure<DelayImportSchedulerSettings>();
-            //var serviceProvider = services.BuildServiceProvider();
-
             var builder = new ContainerBuilder();
             builder.RegisterInstance(configuration).SingleInstance();
             builder.RegisterInstance(loggerFactory).SingleInstance();
