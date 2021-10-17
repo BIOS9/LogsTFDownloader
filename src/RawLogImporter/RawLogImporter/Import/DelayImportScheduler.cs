@@ -17,6 +17,7 @@ namespace LogChugger.Import
         private ILogger logger;
         private DelayImportSchedulerSettings settings;
         private CancellationTokenSource stopTokenSource = null;
+        private object startStopLock = new object();
 
         public DelayImportScheduler(ILoggerFactory loggerFactory, DelayImportSchedulerSettings settings)
         {
@@ -26,23 +27,24 @@ namespace LogChugger.Import
 
         public async void Start()
         {
-            lock (stopTokenSource)
+            lock (startStopLock)
             {
-                if (stopTokenSource != null)
+                if (stopTokenSource != null && !stopTokenSource.IsCancellationRequested)
                     throw new InvalidOperationException("Import scheduler is already running.");
                 stopTokenSource = new CancellationTokenSource();
             }
             while (!stopTokenSource.IsCancellationRequested)
             {
+                logger.LogInformation(settings.ImportDelay.ToString());
                 await Task.Delay(settings.ImportDelay);
             }
         }
 
         public void Stop()
         {
-            lock(stopTokenSource)
+            lock(startStopLock)
             {
-                if (stopTokenSource == null)
+                if (stopTokenSource == null || stopTokenSource.IsCancellationRequested)
                     throw new InvalidOperationException("Import scheduler is not running.");
                 stopTokenSource?.Cancel();
             }
