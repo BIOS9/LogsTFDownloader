@@ -9,9 +9,7 @@ namespace LogChugger
 {
     public class RawLogManager
     {
-        public readonly IRawLogImportScheduler rawLogImportScheduler;
-        public readonly IRawLogMetadataRepository rawLogMetadataRepository;
-        public readonly IRawLogRepository rawLogRepository;
+        private readonly IRawLogImportScheduler rawLogImportScheduler;
 
         public RawLogManager(
             ILoggerFactory loggerFactory,
@@ -22,8 +20,16 @@ namespace LogChugger
 
             IContainer dependencyContainer = DependencyContainerConfig.Configure(loggerFactory, configuration);
             rawLogImportScheduler = dependencyContainer.Resolve<IRawLogImportScheduler>();
-            rawLogMetadataRepository = dependencyContainer.Resolve<IRawLogMetadataRepository>();
-            rawLogRepository = dependencyContainer.Resolve<IRawLogRepository>();
+        }
+
+        public void Start()
+        {
+            rawLogImportScheduler.Start();
+        }
+
+        public void Stop()
+        {
+            rawLogImportScheduler.Stop();
         }
     }
 }
