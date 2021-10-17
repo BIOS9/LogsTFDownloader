@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ namespace LogChugger.Remote.LogsTFApi
     internal class LogsTFApiClient : IRemoteLogSource
     {
         private const int LogPageSize = 500;
-        private const string LatestLogEndpoint = "https://logs.tf/api/v1/log?limit={0}&offset={1}";
+        private const string LatestLogsEndpoint = "https://logs.tf/api/v1/log?limit={0}&offset={1}";
+        private const string SingleLogEndpoint = "https://logs.tf/api/v1/log/{0}";
         private readonly ILogger logger;
 
         public LogsTFApiClient(ILoggerFactory loggerFactory)
@@ -27,7 +29,7 @@ namespace LogChugger.Remote.LogsTFApi
             for (int offset = 0; ; offset += LogPageSize)
             {
                 // Generated logs page URL and download the list.
-                string url = string.Format(LatestLogEndpoint, LogPageSize, offset);
+                string url = string.Format(LatestLogsEndpoint, LogPageSize, offset);
                 logger.LogTrace("Downloading: {url}", url);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
@@ -49,6 +51,28 @@ namespace LogChugger.Remote.LogsTFApi
                     if (time < ignorePast.ToUniversalTime())
                         return id;
                 }
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> GetLogAsync(int id)
+        {
+            logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
+            // Generated log URL and download the JSON.
+            string url = string.Format(SingleLogEndpoint, id);
+            logger.LogTrace("Downloading: {url}", url);
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
+
+            // TODO: Actually do something with the response code.
+            
+            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+            {
+                string json = await reader.ReadToEndAsync();
+                // Deserialize response to check that it is valid JSON
+                _ = JsonSerializer.Deserialize<JsonElement>(json);
+                return json;
             }
         }
     }
