@@ -7,7 +7,7 @@ namespace LogImporterExample
     {
         static void Main(string[] args)
         {
-            RawLogManager logManager = new RawLogManager();
+            //RawLogManager logManager = new RawLogManager();
         }
     }
 }
