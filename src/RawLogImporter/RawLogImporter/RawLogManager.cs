@@ -7,6 +7,10 @@ using System;
 
 namespace LogChugger
 {
+    /// <summary>
+    /// Combines multiple sub-components to acheive an up-to-date and organised local
+    /// repository of logs.
+    /// </summary>
     public class RawLogManager
     {
         private readonly IRawLogImportScheduler rawLogImportScheduler;

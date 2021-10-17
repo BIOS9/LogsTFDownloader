@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace LogChugger.Import
 {
-    /**
-     * <summary>Schedules log importing based on fixed delay.</summary>
-     */
+    /// <summary>
+    /// Schedules log importing based on fixed delay.
+    /// </summary>
     internal class DelayImportScheduler : IRawLogImportScheduler
     {
         private ILogger logger;
@@ -32,6 +32,7 @@ namespace LogChugger.Import
             this.metadataRepository = metadataRepository;
         }
 
+        /// <inheritdoc/>
         public async void Start()
         {
             lock (startStopLock)
@@ -44,6 +45,7 @@ namespace LogChugger.Import
             {
                 try
                 {
+                    // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
                     int latestLogID = await remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
                     logger.LogInformation(latestLogID.ToString());
                     await Task.Delay(settings.ImportDelay);
@@ -55,6 +57,7 @@ namespace LogChugger.Import
             }
         }
 
+        /// <inheritdoc/>
         public void Stop()
         {
             lock(startStopLock)

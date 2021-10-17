@@ -2,7 +2,10 @@
 
 namespace LogChugger.Import
 {
-    class DelayImportSchedulerSettings
+    /// <summary>
+    /// Settings for <see cref="DelayImportScheduler"/>
+    /// </summary>
+    internal class DelayImportSchedulerSettings
     {
         public const string SectionName = "DelayImportScheduler";
         public TimeSpan ImportDelay { get; set; }

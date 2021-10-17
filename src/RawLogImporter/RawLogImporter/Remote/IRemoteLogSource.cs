@@ -5,12 +5,16 @@ using System.Threading.Tasks;
 
 namespace LogChugger.Remote
 {
+    /// <summary>
+    /// A remote source of logs that contains logs to be imported.
+    /// </summary>
     internal interface IRemoteLogSource
     {
-        /**
-         * <summary>Gets latest log ID from the remote source that is not past the <paramref name="ignorePast"/> time.</summary>
-         * <param name="ignorePast">Ignores any logs created past this date.</param>
-         */
+        /// <summary>
+        /// Gets latest log ID from the remote source that is not past the <paramref name="ignorePast"/> time.
+        /// </summary>
+        /// <param name="ignorePast">Ignores any logs created past this date.</param>
+        /// <returns>Latest log ID.</returns>
         public Task<int> GetLatestLogIDAsync(DateTime ignorePast);
     }
 }

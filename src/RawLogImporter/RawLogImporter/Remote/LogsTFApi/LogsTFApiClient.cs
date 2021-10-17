@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace LogChugger.Remote.LogsTFApi
 {
+    /// <summary>
+    /// Communicates with the logs.tf website to get logs and log metadata.
+    /// </summary>
     internal class LogsTFApiClient : IRemoteLogSource
     {
         private const int LogPageSize = 500;
@@ -19,26 +20,32 @@ namespace LogChugger.Remote.LogsTFApi
             logger = loggerFactory.CreateLogger(nameof(LogsTFApiClient));
         }
 
+        /// <inheritdoc/>
         public async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
         {
             logger.LogDebug("Downloading latest log ID from logs.tf. Ignoring past {ignorePast}", ignorePast);
             for (int offset = 0; ; offset += LogPageSize)
             {
+                // Generated logs page URL and download the list.
                 string url = string.Format(LatestLogEndpoint, LogPageSize, offset);
                 logger.LogTrace("Downloading: {url}", url);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
                 logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
+
+                // TODO: Actually do something with the response code.
+
+                // Deserialize response and find the log ID.
                 JsonElement result = await JsonSerializer.DeserializeAsync<JsonElement>(response.GetResponseStream());
                 JsonElement logsArray = result.GetProperty("logs");
                 foreach (JsonElement log in logsArray.EnumerateArray())
                 {
-                    // If the log time is earlier than the ignorePast time, return that log ID.
                     long epochTime = log.GetProperty("date").GetInt64();
                     int id = log.GetProperty("id").GetInt32();
                     DateTime time = DateTimeOffset.FromUnixTimeSeconds(epochTime).DateTime;
                     logger.LogTrace("Log: {id}, Epoch: {epoch}, Date: {date}", id, epochTime, time);
 
+                    // If the log time is earlier than the ignorePast time, return that log ID.
                     if (time < ignorePast.ToUniversalTime())
                         return id;
                 }
