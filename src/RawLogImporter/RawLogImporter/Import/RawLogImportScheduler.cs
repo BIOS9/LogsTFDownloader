@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawLogImporter
+namespace RawLogManager.Import
 {
     class RawLogImportScheduler
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawLogImporter.LogsTFApi
+namespace RawLogManager.LogsTFApi
 {
     class PolicedLogsTFApiClient
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RawLogImporter
+namespace RawLogManager.Import
 {
     public class RawLogImporter
     {
