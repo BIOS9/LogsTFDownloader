@@ -1,5 +1,8 @@
 {
   "DelayImportScheduler": {
     "ImportDelay": "00:00:30"
+  },
+  "MySqlMetadataRepository": {
+    "ConnectionString": "Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;"
   }
 }

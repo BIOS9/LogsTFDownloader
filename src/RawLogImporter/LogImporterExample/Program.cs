@@ -20,8 +20,6 @@ namespace LogImporterExample
                 .AddJsonFile("settings.json")
                 .Build();
 
-            config.GetRequiredSection("delayImportScheduler");
-
             RawLogManager logManager = new RawLogManager(
                 new SerilogLoggerFactory(),
                 config);
