@@ -1,5 +1,5 @@
 {
-  "delayImportScheduler": {
-    "delay": 3600
+  "DelayImportScheduler": {
+    "ImportDelay": "00:00:01"
   }
 }
