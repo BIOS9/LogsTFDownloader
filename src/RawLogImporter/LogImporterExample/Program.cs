@@ -26,6 +26,7 @@ namespace LogImporterExample
                 config);
 
             logManager.Start();
+            Console.ReadLine();
         }
     }
 }
