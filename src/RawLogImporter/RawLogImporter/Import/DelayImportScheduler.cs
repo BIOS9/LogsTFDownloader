@@ -13,12 +13,12 @@ namespace LogChugger.Import
     /// </summary>
     internal class DelayImportScheduler : IRawLogImportScheduler
     {
-        private ILogger logger;
-        private DelayImportSchedulerSettings settings;
+        private readonly ILogger logger;
+        private readonly DelayImportSchedulerSettings settings;
         private CancellationTokenSource stopTokenSource = null;
-        private object startStopLock = new object();
-        private IRemoteLogSource remoteLogSource;
-        private IRawLogMetadataRepository metadataRepository;
+        private readonly object startStopLock = new object();
+        private readonly IRemoteLogSource remoteLogSource;
+        private readonly IRawLogMetadataRepository metadataRepository;
 
         public DelayImportScheduler(
             ILoggerFactory loggerFactory, 
@@ -27,9 +27,9 @@ namespace LogChugger.Import
             IRawLogMetadataRepository metadataRepository)
         {
             logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
-            this.settings = settings;
-            this.remoteLogSource = remoteLogSource;
-            this.metadataRepository = metadataRepository;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings)); ;
+            this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource)); ;
+            this.metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
         }
 
         /// <inheritdoc/>
