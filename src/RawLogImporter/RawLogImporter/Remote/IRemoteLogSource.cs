@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawLogManager.LogsTFApi
+namespace RawLogManager.Remote
 {
-    class PolicedLogsTFApiClient
+    interface IRemoteLogSource
     {
     }
 }
