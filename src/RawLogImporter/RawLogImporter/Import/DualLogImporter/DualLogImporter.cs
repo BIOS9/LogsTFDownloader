@@ -104,16 +104,11 @@ namespace LogChugger.Import.DualLogImporter
             return logContent;
         }
 
-        private struct DuplicateSearchResult
-        {
-            public ICollection<int> DuplicateLogs;
-            public byte[] LogHash;
-        }
-
         /// <summary>
         /// Finds duplicate logs in the local repository and also calculates the hash
         /// to be saved when the log is imported.
         /// </summary>
+        /// <param name="id">The unique log ID.</param>
         /// <param name="content">JSON content of the log.</param>
         /// <returns>
         /// A <see cref="DuplicateSearchResult"/> which contains the IDs of duplicate logs
@@ -127,13 +122,30 @@ namespace LogChugger.Import.DualLogImporter
             {
                 hashBytes = hash.ComputeHash(contentBytes);
             }
+
             this.logger.LogTrace(
                 "Finding duplicates for log {id} {hashAlgo} hash {hash}.",
                 id,
                 this.settings.DuplicateCheckHashAlgorithm,
                 Convert.ToBase64String(hashBytes));
 
-            return new DuplicateSearchResult();
+            ICollection<int> potentialDuplicates = await this.metadataRepository.GetIdsByHashAsync(hashBytes);
+            this.logger.LogTrace(
+                "Potential duplicates for log {id}: {duplicates}",
+                potentialDuplicates);
+
+            return new DuplicateSearchResult
+            {
+                DuplicateLogs = new List<int>(),
+                LogHash = hashBytes,
+            };
+        }
+
+        private struct DuplicateSearchResult
+        {
+            public ICollection<int> DuplicateLogs { get; set; }
+
+            public byte[] LogHash { get; set; }
         }
     }
 }

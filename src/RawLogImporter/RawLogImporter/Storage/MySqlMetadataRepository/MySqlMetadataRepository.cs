@@ -16,6 +16,9 @@ namespace LogChugger.Storage.MySqlMetadataRepository
     /// </summary>
     internal class MySqlMetadataRepository : IRawLogMetadataRepository
     {
+        /// <summary>
+        /// The MySql table for raw log metadata.
+        /// </summary>
         internal const string RawLogTable = "RawLogs";
 
         private readonly MySqlMetadataRepositorySettings settings;
@@ -30,37 +33,33 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<int>> GetIdByHashAsync(byte[] hash)
+        public async Task<ICollection<int>> GetIdsByHashAsync(byte[] hash)
         {
-            using (var connection = new MySqlConnection(this.settings.ConnectionString))
-            {
-                IEnumerable<int> ids = await connection.QueryAsync<int>(
-                    $"SELECT `id` FROM `{RawLogTable}` WHERE `hash` = @hash",
-                    new { hash });
-                return ids.AsList();
-            }
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            IEnumerable<int> ids = await connection.QueryAsync<int>(
+                $"SELECT `id` FROM `{RawLogTable}` WHERE `hash` = @hash",
+                new { hash });
+            return ids.AsList();
         }
 
         /// <inheritdoc/>
         public async Task<RawLogMetadata> GetMetadataByIdAsync(int id)
         {
-            using (var connection = new MySqlConnection(this.settings.ConnectionString))
-            {
-                Models.RawLog log = await connection.GetAsync<Models.RawLog>(id);
-                IEnumerable<int> duplicateIds = await connection.QueryAsync<int>(
-                    $"SELECT `id` FROM `{RawLogTable}` WHERE `duplicateId` = @duplicateId",
-                    new { duplicateId = log.DuplicateId });
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            Models.RawLog log = await connection.GetAsync<Models.RawLog>(id);
+            IEnumerable<int> duplicateIds = await connection.QueryAsync<int>(
+                $"SELECT `id` FROM `{RawLogTable}` WHERE `duplicateId` = @duplicateId",
+                new { duplicateId = log.DuplicateId });
 
-                return new RawLogMetadata
-                {
-                    Id = log.Id,
-                    ImportStatus = log.ImportStatus,
-                    FailureMessage = log.FailureMessage,
-                    Hash = log.Hash,
-                    DuplicateLogs = duplicateIds.AsList(),
-                    Time = log.Time,
-                };
-            }
+            return new RawLogMetadata
+            {
+                Id = log.Id,
+                ImportStatus = log.ImportStatus,
+                FailureMessage = log.FailureMessage,
+                Hash = log.Hash,
+                DuplicateLogs = duplicateIds.AsList(),
+                Time = log.Time,
+            };
         }
 
         /// <inheritdoc/>

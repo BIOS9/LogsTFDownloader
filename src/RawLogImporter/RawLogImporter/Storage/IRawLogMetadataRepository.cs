@@ -32,6 +32,6 @@ namespace LogChugger.Storage
         /// </summary>
         /// <param name="hash">The hash to search for.</param>
         /// <returns>A collection with 0 or more log IDs.</returns>
-        public Task<ICollection<int>> GetIdByHashAsync(byte[] hash);
+        public Task<ICollection<int>> GetIdsByHashAsync(byte[] hash);
     }
 }
