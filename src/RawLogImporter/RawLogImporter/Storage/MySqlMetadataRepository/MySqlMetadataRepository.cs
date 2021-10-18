@@ -30,9 +30,15 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         }
 
         /// <inheritdoc/>
-        public Task<ICollection<RawLogMetadata>> GetMetadataByHashAsync(byte[] hash)
+        public async Task<ICollection<int>> GetIdByHashAsync(byte[] hash)
         {
-            throw new NotImplementedException();
+            using (var connection = new MySqlConnection(this.settings.ConnectionString))
+            {
+                IEnumerable<int> ids = await connection.QueryAsync<int>(
+                    $"SELECT `id` FROM `{RawLogTable}` WHERE `hash` = @hash",
+                    new { hash });
+                return ids.AsList();
+            }
         }
 
         /// <inheritdoc/>

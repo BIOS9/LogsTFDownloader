@@ -28,10 +28,10 @@ namespace LogChugger.Storage
         public Task<RawLogMetadata> GetMetadataByIdAsync(int id);
 
         /// <summary>
-        /// Gets all metadata records with a matching hash.
+        /// Gets the IDs for all logs with the same has .
         /// </summary>
         /// <param name="hash">The hash to search for.</param>
-        /// <returns>A collection with 0 or more metadata records.</returns>
-        public Task<ICollection<RawLogMetadata>> GetMetadataByHashAsync(byte[] hash);
+        /// <returns>A collection with 0 or more log IDs.</returns>
+        public Task<ICollection<int>> GetIdByHashAsync(byte[] hash);
     }
 }
