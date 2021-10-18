@@ -19,8 +19,15 @@
             ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {
-            if(loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
-            if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+            if (loggerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(loggerFactory));
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
 
             IContainer dependencyContainer = DependencyContainerConfig.Configure(loggerFactory, configuration);
             rawLogImportScheduler = dependencyContainer.Resolve<IRawLogImportScheduler>();

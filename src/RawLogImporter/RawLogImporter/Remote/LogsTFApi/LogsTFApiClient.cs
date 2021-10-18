@@ -49,7 +49,9 @@
 
                     // If the log time is earlier than the ignorePast time, return that log ID.
                     if (time < ignorePast.ToUniversalTime())
+                    {
                         return id;
+                    }
                 }
             }
         }
@@ -66,7 +68,7 @@
             logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
 
             // TODO: Actually do something with the response code.
-            
+
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {
                 string json = await reader.ReadToEndAsync();

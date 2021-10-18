@@ -21,7 +21,7 @@
         private readonly IRawLogMetadataRepository metadataRepository;
 
         public DelayImportScheduler(
-            ILoggerFactory loggerFactory, 
+            ILoggerFactory loggerFactory,
             DelayImportSchedulerSettings settings,
             IRemoteLogSource remoteLogSource,
             IRawLogMetadataRepository metadataRepository)
@@ -38,9 +38,13 @@
             lock (startStopLock)
             {
                 if (stopTokenSource != null && !stopTokenSource.IsCancellationRequested)
+                {
                     throw new InvalidOperationException("Import scheduler is already running.");
+                }
+
                 stopTokenSource = new CancellationTokenSource();
             }
+
             while (!stopTokenSource.IsCancellationRequested)
             {
                 try
@@ -63,7 +67,10 @@
             lock(startStopLock)
             {
                 if (stopTokenSource == null || stopTokenSource.IsCancellationRequested)
+                {
                     throw new InvalidOperationException("Import scheduler is not running.");
+                }
+
                 stopTokenSource?.Cancel();
             }
         }

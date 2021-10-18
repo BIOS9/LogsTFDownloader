@@ -24,7 +24,7 @@
             var builder = new ContainerBuilder();
             builder.RegisterInstance(configuration).SingleInstance();
             builder.RegisterInstance(loggerFactory).SingleInstance();
-            
+
             builder.RegisterType<DelayImportScheduler>().As<IRawLogImportScheduler>();
             builder.RegisterInstance(configuration.GetRequiredSection(DelayImportSchedulerSettings.SectionName)
                 .Get<DelayImportSchedulerSettings>());

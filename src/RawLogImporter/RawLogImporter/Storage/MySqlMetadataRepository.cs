@@ -15,8 +15,6 @@
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-
-
         /// <inheritdoc/>
         public ICollection<int> GetUnassignedLogIDs(int max)
         {
