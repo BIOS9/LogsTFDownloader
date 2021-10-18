@@ -42,7 +42,10 @@ namespace LogChugger
             builder.RegisterType<MySqlMetadataRepository>().As<IRawLogMetadataRepository>();
             builder.RegisterInstance(configuration.GetRequiredSection(MySqlMetadataRepositorySettings.SectionName)
                 .Get<MySqlMetadataRepositorySettings>());
+
             builder.RegisterType<DiskLogRepository>().As<IRawLogRepository>();
+            builder.RegisterInstance(configuration.GetRequiredSection(DiskLogRepositorySettings.SectionName)
+                .Get<DiskLogRepositorySettings>());
 
             return builder.Build();
         }

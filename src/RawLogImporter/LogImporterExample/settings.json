@@ -8,5 +8,8 @@
   "LogsTFApiPolicer": {
     "BurstRequestLimit": 5,
     "AverageRequestInterval": "00:00:10"
+  },
+  "DiskLogRepository": {
+    "LogsDirectoryPath": "logs"
   }
 }
