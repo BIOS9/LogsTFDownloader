@@ -20,6 +20,8 @@ namespace LogChugger
         /// <summary>
         /// Configure dependency injection.
         /// </summary>
+        /// <param name="loggerFactory">A logger factory used by each component to create a logger.</param>
+        /// <param name="configuration">Configuration containing the reqired sections for the sub-components.</param>
         /// <returns>Dependency container.</returns>
         public static IContainer Configure(
             ILoggerFactory loggerFactory,
