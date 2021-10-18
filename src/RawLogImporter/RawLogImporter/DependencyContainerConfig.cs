@@ -7,6 +7,7 @@ namespace LogChugger
     using Autofac;
     using LogChugger.Import;
     using LogChugger.Import.DelayImportScheduler;
+    using LogChugger.Import.DualLogImporter;
     using LogChugger.Remote;
     using LogChugger.Remote.LogsTFApi;
     using LogChugger.Storage;
@@ -37,6 +38,8 @@ namespace LogChugger
             builder.RegisterType<DelayImportScheduler>().As<IRawLogImportScheduler>();
             builder.RegisterInstance(configuration.GetRequiredSection(DelayImportSchedulerSettings.SectionName)
                 .Get<DelayImportSchedulerSettings>());
+
+            builder.RegisterType<DualLogImporter>().As<IRawLogImporter>();
 
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
             builder.RegisterInstance(configuration.GetRequiredSection(PolicedLogsTFApiClientSettings.SectionName)
