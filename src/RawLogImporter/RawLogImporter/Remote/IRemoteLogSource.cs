@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogChugger.Remote
+﻿namespace LogChugger.Remote
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// A remote source of logs that contains logs to be imported.
     /// </summary>

@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Net;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-namespace LogChugger.Remote.LogsTFApi
+﻿namespace LogChugger.Remote.LogsTFApi
 {
+    using Microsoft.Extensions.Logging;
+    using System;
+    using System.IO;
+    using System.Net;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Communicates with the logs.tf website to get logs and log metadata.
     /// </summary>

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace LogChugger.Storage
+﻿namespace LogChugger.Storage
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// A repository that stores metadata about logs such as log IDs, hashes, import status
     /// and information about duplicate logs.

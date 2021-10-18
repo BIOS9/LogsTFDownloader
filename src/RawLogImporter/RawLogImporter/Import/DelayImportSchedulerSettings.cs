@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace LogChugger.Import
+﻿namespace LogChugger.Import
 {
+    using System;
+
     /// <summary>
     /// Settings for <see cref="DelayImportScheduler"/>
     /// </summary>

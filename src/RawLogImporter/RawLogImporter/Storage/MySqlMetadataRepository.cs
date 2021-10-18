@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LogChugger.Storage
+﻿namespace LogChugger.Storage
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// A MySql based metadata storage repository for raw log metadata.
     /// </summary>

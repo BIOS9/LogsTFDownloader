@@ -1,12 +1,12 @@
-﻿using Autofac;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using LogChugger.Import;
-using LogChugger.Storage;
-using System;
-
-namespace LogChugger
+﻿namespace LogChugger
 {
+    using Autofac;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using LogChugger.Import;
+    using LogChugger.Storage;
+    using System;
+
     /// <summary>
     /// Combines multiple sub-components to acheive an up-to-date and organised local
     /// repository of logs.

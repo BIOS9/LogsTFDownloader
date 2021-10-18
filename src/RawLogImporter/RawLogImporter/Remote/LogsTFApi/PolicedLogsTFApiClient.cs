@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace LogChugger.Remote.LogsTFApi
+﻿namespace LogChugger.Remote.LogsTFApi
 {
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
     /// A rate-limited version of <see cref="LogsTFApi"/>
     /// </summary>
