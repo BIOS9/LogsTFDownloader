@@ -2,7 +2,7 @@
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Storage
+namespace LogChugger.Storage.MySqlMetadataRepository
 {
     using System;
     using System.Collections.Generic;

@@ -6,9 +6,12 @@ namespace LogChugger
 {
     using Autofac;
     using LogChugger.Import;
+    using LogChugger.Import.DelayImportScheduler;
     using LogChugger.Remote;
     using LogChugger.Remote.LogsTFApi;
     using LogChugger.Storage;
+    using LogChugger.Storage.DiskLogRepository;
+    using LogChugger.Storage.MySqlMetadataRepository;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 

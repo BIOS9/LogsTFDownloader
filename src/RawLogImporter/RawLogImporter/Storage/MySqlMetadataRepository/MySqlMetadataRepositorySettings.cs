@@ -2,7 +2,7 @@
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Storage
+namespace LogChugger.Storage.MySqlMetadataRepository
 {
     /// <summary>
     /// Settings for <see cref="MySqlMetadataRepository"/>.

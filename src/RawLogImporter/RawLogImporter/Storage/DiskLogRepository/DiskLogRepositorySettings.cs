@@ -2,7 +2,7 @@
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Storage
+namespace LogChugger.Storage.DiskLogRepository
 {
     /// <summary>
     /// Settings for <see cref="DiskLogRepository"/>.

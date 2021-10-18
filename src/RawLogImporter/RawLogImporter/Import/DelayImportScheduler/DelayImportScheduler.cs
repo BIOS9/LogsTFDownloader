@@ -2,7 +2,7 @@
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Import
+namespace LogChugger.Import.DelayImportScheduler
 {
     using System;
     using System.IO;
