@@ -5,6 +5,7 @@
 namespace LogChugger.Storage
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Represents a record in the raw log metadata repository.
@@ -59,9 +60,9 @@ namespace LogChugger.Storage
         public byte[] Hash { get; set; }
 
         /// <summary>
-        /// Gets or sets shared ID for duplicate logs.
+        /// Gets or sets IDs for duplicate logs.
         /// </summary>
-        public int? Duplicate { get; set; }
+        public ICollection<int> DuplicateLogs { get; set; }
 
         /// <summary>
         /// Gets or sets the time that the log was added or updated.
