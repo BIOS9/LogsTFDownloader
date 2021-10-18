@@ -1,12 +1,12 @@
 ﻿namespace LogChugger.Import
 {
-    using LogChugger.Remote;
-    using LogChugger.Storage;
-    using Microsoft.Extensions.Logging;
     using System;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using LogChugger.Remote;
+    using LogChugger.Storage;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Schedules log importing based on fixed delay.

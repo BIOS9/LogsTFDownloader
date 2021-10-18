@@ -1,12 +1,12 @@
 ﻿namespace LogChugger
 {
     using Autofac;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Logging;
+    using LogChugger.Import;
     using LogChugger.Remote;
     using LogChugger.Remote.LogsTFApi;
     using LogChugger.Storage;
-    using LogChugger.Import;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Dependency injection setup/configuration.

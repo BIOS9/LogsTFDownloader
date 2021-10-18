@@ -1,11 +1,10 @@
 ﻿namespace LogChugger
 {
+    using System;
     using Autofac;
+    using LogChugger.Import;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using LogChugger.Import;
-    using LogChugger.Storage;
-    using System;
 
     /// <summary>
     /// Combines multiple sub-components to acheive an up-to-date and organised local
