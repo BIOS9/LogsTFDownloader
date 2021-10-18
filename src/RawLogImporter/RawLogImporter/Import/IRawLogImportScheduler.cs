@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Import
+﻿// <copyright file="IRawLogImportScheduler.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Import
 {
     /// <summary>
     /// Handles scheduling and triggering of batch log imports.

@@ -1,4 +1,8 @@
-﻿namespace LogChugger
+﻿// <copyright file="DependencyContainerConfig.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger
 {
     using Autofac;
     using LogChugger.Import;

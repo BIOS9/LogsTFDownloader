@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Import
+﻿// <copyright file="DelayImportScheduler.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Import
 {
     using System;
     using System.IO;
@@ -15,10 +19,10 @@
     {
         private readonly ILogger logger;
         private readonly DelayImportSchedulerSettings settings;
-        private CancellationTokenSource stopTokenSource = null;
-        private readonly object startStopLock = new object();
         private readonly IRemoteLogSource remoteLogSource;
         private readonly IRawLogMetadataRepository metadataRepository;
+        private readonly object startStopLock = new object();
+        private CancellationTokenSource stopTokenSource = null;
 
         public DelayImportScheduler(
             ILoggerFactory loggerFactory,
@@ -26,7 +30,7 @@
             IRemoteLogSource remoteLogSource,
             IRawLogMetadataRepository metadataRepository)
         {
-            logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
+            this.logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource));
             this.metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
@@ -35,28 +39,28 @@
         /// <inheritdoc/>
         public async void Start()
         {
-            lock (startStopLock)
+            lock (this.startStopLock)
             {
-                if (stopTokenSource != null && !stopTokenSource.IsCancellationRequested)
+                if (this.stopTokenSource != null && !this.stopTokenSource.IsCancellationRequested)
                 {
                     throw new InvalidOperationException("Import scheduler is already running.");
                 }
 
-                stopTokenSource = new CancellationTokenSource();
+                this.stopTokenSource = new CancellationTokenSource();
             }
 
-            while (!stopTokenSource.IsCancellationRequested)
+            while (!this.stopTokenSource.IsCancellationRequested)
             {
                 try
                 {
                     // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
-                    int latestLogID = await remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
-                    logger.LogInformation(latestLogID.ToString());
-                    await Task.Delay(settings.ImportDelay);
+                    int latestLogID = await this.remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
+                    this.logger.LogInformation(latestLogID.ToString());
+                    await Task.Delay(this.settings.ImportDelay);
                 }
-                catch(IOException ex)
+                catch (IOException ex)
                 {
-                    logger.LogError(ex, "Failed to download resource from remote.");
+                    this.logger.LogError(ex, "Failed to download resource from remote.");
                 }
             }
         }
@@ -64,14 +68,14 @@
         /// <inheritdoc/>
         public void Stop()
         {
-            lock(startStopLock)
+            lock (this.startStopLock)
             {
-                if (stopTokenSource == null || stopTokenSource.IsCancellationRequested)
+                if (this.stopTokenSource == null || this.stopTokenSource.IsCancellationRequested)
                 {
                     throw new InvalidOperationException("Import scheduler is not running.");
                 }
 
-                stopTokenSource?.Cancel();
+                this.stopTokenSource?.Cancel();
             }
         }
     }

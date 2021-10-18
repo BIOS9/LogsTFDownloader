@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Remote
+﻿// <copyright file="IRemoteLogSource.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Remote
 {
     using System;
     using System.Collections.Generic;

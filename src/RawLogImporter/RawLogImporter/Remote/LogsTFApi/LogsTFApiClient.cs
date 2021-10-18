@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Remote.LogsTFApi
+﻿// <copyright file="LogsTFApiClient.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Remote.LogsTFApi
 {
     using System;
     using System.IO;
@@ -19,21 +23,21 @@
 
         public LogsTFApiClient(ILoggerFactory loggerFactory)
         {
-            logger = loggerFactory.CreateLogger(nameof(LogsTFApiClient));
+            this.logger = loggerFactory.CreateLogger(nameof(LogsTFApiClient));
         }
 
         /// <inheritdoc/>
         public async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
         {
-            logger.LogDebug("Downloading latest log ID from logs.tf. Ignoring past {ignorePast}", ignorePast);
+            this.logger.LogDebug("Downloading latest log ID from logs.tf. Ignoring past {ignorePast}", ignorePast);
             for (int offset = 0; ; offset += LogPageSize)
             {
                 // Generated logs page URL and download the list.
                 string url = string.Format(LatestLogsEndpoint, LogPageSize, offset);
-                logger.LogTrace("Downloading: {url}", url);
+                this.logger.LogTrace("Downloading: {url}", url);
                 HttpWebRequest request = WebRequest.CreateHttp(url);
                 HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-                logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
+                this.logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
 
                 // TODO: Actually do something with the response code.
 
@@ -45,7 +49,7 @@
                     long epochTime = log.GetProperty("date").GetInt64();
                     int id = log.GetProperty("id").GetInt32();
                     DateTime time = DateTimeOffset.FromUnixTimeSeconds(epochTime).DateTime;
-                    logger.LogTrace("Log: {id}, Epoch: {epoch}, Date: {date}", id, epochTime, time);
+                    this.logger.LogTrace("Log: {id}, Epoch: {epoch}, Date: {date}", id, epochTime, time);
 
                     // If the log time is earlier than the ignorePast time, return that log ID.
                     if (time < ignorePast.ToUniversalTime())
@@ -59,19 +63,21 @@
         /// <inheritdoc/>
         public async Task<string> GetLogAsync(int id)
         {
-            logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
+            this.logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
+
             // Generated log URL and download the JSON.
             string url = string.Format(SingleLogEndpoint, id);
-            logger.LogTrace("Downloading: {url}", url);
+            this.logger.LogTrace("Downloading: {url}", url);
             HttpWebRequest request = WebRequest.CreateHttp(url);
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
+            this.logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
 
             // TODO: Actually do something with the response code.
 
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {
                 string json = await reader.ReadToEndAsync();
+
                 // Deserialize response to check that it is valid JSON
                 _ = JsonSerializer.Deserialize<JsonElement>(json);
                 return json;

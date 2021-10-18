@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Storage
+﻿// <copyright file="IRawLogMetadataRepository.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Storage
 {
     using System.Collections.Generic;
 
@@ -9,10 +13,10 @@
     public interface IRawLogMetadataRepository
     {
         /// <summary>
-        /// Returns all log IDs with no status from 0 (Exclusive) to <paramref name="max"/>
+        /// Returns all log IDs with no status from 0 (Exclusive) to <paramref name="max"/>.
         /// </summary>
         /// <param name="max">Maximum log ID to include in the search.</param>
-        /// <returns>List of all unassigned log IDs</returns>
+        /// <returns>List of all unassigned log IDs.</returns>
         public ICollection<int> GetUnassignedLogIDs(int max);
     }
 }

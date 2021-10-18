@@ -1,4 +1,8 @@
-﻿namespace LogChugger.Storage
+﻿// <copyright file="MySqlMetadataRepository.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger.Storage
 {
     using System;
     using System.Collections.Generic;

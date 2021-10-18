@@ -1,4 +1,8 @@
-﻿namespace LogChugger
+﻿// <copyright file="RawLogManager.cs" company="CIA">
+// Copyright (c) CIA. All rights reserved.
+// </copyright>
+
+namespace LogChugger
 {
     using System;
     using Autofac;
@@ -29,17 +33,17 @@
             }
 
             IContainer dependencyContainer = DependencyContainerConfig.Configure(loggerFactory, configuration);
-            rawLogImportScheduler = dependencyContainer.Resolve<IRawLogImportScheduler>();
+            this.rawLogImportScheduler = dependencyContainer.Resolve<IRawLogImportScheduler>();
         }
 
         public void Start()
         {
-            rawLogImportScheduler.Start();
+            this.rawLogImportScheduler.Start();
         }
 
         public void Stop()
         {
-            rawLogImportScheduler.Stop();
+            this.rawLogImportScheduler.Stop();
         }
     }
 }
