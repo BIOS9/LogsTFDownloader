@@ -21,6 +21,7 @@ namespace LogChugger.Import.DelayImportScheduler
         private readonly DelayImportSchedulerSettings settings;
         private readonly IRemoteLogSource remoteLogSource;
         private readonly IRawLogMetadataRepository metadataRepository;
+        private readonly IRawLogImporter logImporter;
         private readonly object startStopLock = new object();
         private CancellationTokenSource stopTokenSource = null;
 
@@ -31,16 +32,19 @@ namespace LogChugger.Import.DelayImportScheduler
         /// <param name="settings">Import scheduler settings.</param>
         /// <param name="remoteLogSource">The remote log source to use to fetch logs.</param>
         /// <param name="metadataRepository">The metadata repository that stores the raw log information.</param>
+        /// <param name="logImporter">Raw log importer used to import logs into the local repositories periodically.</param>
         public DelayImportScheduler(
             ILoggerFactory loggerFactory,
             DelayImportSchedulerSettings settings,
             IRemoteLogSource remoteLogSource,
-            IRawLogMetadataRepository metadataRepository)
+            IRawLogMetadataRepository metadataRepository,
+            IRawLogImporter logImporter)
         {
             this.logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource));
             this.metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
+            this.logImporter = logImporter ?? throw new ArgumentNullException(nameof(logImporter));
         }
 
         /// <inheritdoc/>
@@ -63,6 +67,7 @@ namespace LogChugger.Import.DelayImportScheduler
                     // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
                     int latestLogID = await this.remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
                     this.logger.LogInformation(latestLogID.ToString());
+                    await this.logImporter.ImportLogAsync(latestLogID);
                     await Task.Delay(this.settings.ImportDelay);
                 }
                 catch (IOException ex)
