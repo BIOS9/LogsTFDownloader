@@ -82,14 +82,12 @@ namespace LogChugger.Remote.LogsTFApi
              * TODO: Actually do something with the response code.
              */
 
-            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-            {
-                string json = await reader.ReadToEndAsync();
+            using StreamReader reader = new StreamReader(response.GetResponseStream());
+            string json = await reader.ReadToEndAsync();
 
-                // Deserialize response to check that it is valid JSON
-                _ = JsonSerializer.Deserialize<JsonElement>(json);
-                return json;
-            }
+            // Deserialize response to check that it is valid JSON
+            _ = JsonSerializer.Deserialize<JsonElement>(json);
+            return json;
         }
     }
 }
