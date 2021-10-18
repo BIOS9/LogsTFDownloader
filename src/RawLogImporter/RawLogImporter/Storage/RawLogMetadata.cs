@@ -25,7 +25,7 @@ namespace LogChugger.Storage
             /// <summary>
             /// Log has been successfully imported.
             /// </summary>
-            Succeed,
+            Succeeded,
 
             /// <summary>
             /// Log import was attempted and failed.
