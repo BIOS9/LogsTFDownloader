@@ -11,9 +11,11 @@ namespace LogChugger.Remote.LogsTFApi
 
     /// <summary>
     /// A rate-limited version of <see cref="LogsTFApi"/>.
+    /// Rate limiting is based on the token bucket algorithm https://en.wikipedia.org/wiki/Token_bucket.
     /// </summary>
     internal class PolicedLogsTFApiClient : LogsTFApiClient, IDisposable
     {
+        private readonly ILogger logger;
         private readonly PolicedLogsTFApiClientSettings settings;
         private readonly SemaphoreSlim requestTokenBucket;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -27,6 +29,7 @@ namespace LogChugger.Remote.LogsTFApi
             : base(loggerFactory)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.logger = loggerFactory.CreateLogger(nameof(PolicedLogsTFApiClient));
             this.requestTokenBucket = new SemaphoreSlim(settings.BurstRequestLimit, settings.BurstRequestLimit);
             this.StartTokenLoopAsync();
         }
@@ -37,9 +40,10 @@ namespace LogChugger.Remote.LogsTFApi
         /// </summary>
         /// <param name="ignorePast">Ignores any logs created past this date.</param>
         /// <returns>Latest log ID.</returns>
-        public new async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
+        public override async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
         {
             await this.requestTokenBucket.WaitAsync();
+            this.logger.LogTrace("Used one request token. Current count: {count}", this.requestTokenBucket.CurrentCount);
             return await base.GetLatestLogIDAsync(ignorePast);
         }
 
@@ -49,9 +53,10 @@ namespace LogChugger.Remote.LogsTFApi
         /// </summary>
         /// <param name="id">ID of the log to get.</param>
         /// <returns>Raw log JSON string.</returns>
-        public new async Task<string> GetLogAsync(int id)
+        public override async Task<string> GetLogAsync(int id)
         {
             await this.requestTokenBucket.WaitAsync();
+            this.logger.LogTrace("Used one request token. Current count: {count}", this.requestTokenBucket.CurrentCount);
             return await base.GetLogAsync(id);
         }
 
@@ -70,7 +75,11 @@ namespace LogChugger.Remote.LogsTFApi
             while (!this.cancellationTokenSource.IsCancellationRequested)
             {
                 await Task.Delay(this.settings.AverageRequestInterval, this.cancellationTokenSource.Token);
-                this.requestTokenBucket.Release();
+                if (this.requestTokenBucket.CurrentCount < this.settings.BurstRequestLimit)
+                {
+                    this.logger.LogTrace("Dispensing one request token. Current count: {count}", this.requestTokenBucket.CurrentCount + 1);
+                    this.requestTokenBucket.Release();
+                }
             }
         }
     }

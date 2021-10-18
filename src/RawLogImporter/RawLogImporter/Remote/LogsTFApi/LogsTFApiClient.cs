@@ -31,7 +31,7 @@ namespace LogChugger.Remote.LogsTFApi
         }
 
         /// <inheritdoc/>
-        public async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
+        public virtual async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
         {
             this.logger.LogDebug("Downloading latest log ID from logs.tf. Ignoring past {ignorePast}", ignorePast);
             for (int offset = 0; ; offset += LogPageSize)
@@ -67,7 +67,7 @@ namespace LogChugger.Remote.LogsTFApi
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetLogAsync(int id)
+        public virtual async Task<string> GetLogAsync(int id)
         {
             this.logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
 
