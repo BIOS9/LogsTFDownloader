@@ -7,6 +7,7 @@ namespace LogChugger.Storage
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Logging;
 
@@ -36,35 +37,79 @@ namespace LogChugger.Storage
         public Task DeleteLogAsync(int id)
         {
             this.logger.LogDebug("Deleting log {id}", id);
-            throw new NotImplementedException();
+            string logFile = Path.Combine(this.logsDirectory, id + ".json");
+
+            // Probably don't even need this check, the delete would fail anyway but this probably gives a nicer error.
+            if (!File.Exists(logFile))
+            {
+                throw new FileNotFoundException($"The log file at \"{logFile}\" does not exist.");
+            }
+
+            File.Delete(logFile);
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
         public Task<bool> DoesLogExistAsync(int id)
         {
             this.logger.LogDebug("Checking if log exists {id}", id);
-            throw new NotImplementedException();
+            string logFile = Path.Combine(this.logsDirectory, id + ".json");
+            return Task.FromResult(File.Exists(logFile));
         }
 
         /// <inheritdoc/>
         public Task<ICollection<int>> GetAllLogIDsAsync()
         {
             this.logger.LogDebug("Getting all log IDs (this may take a while).");
-            throw new NotImplementedException();
+
+            if (!Directory.Exists(this.logsDirectory))
+            {
+                return Task.FromResult((ICollection<int>)new int[0]);
+            }
+
+            // This isn't implemented asynchronously at all. It will block but I don't care.
+            string[] fileNames = Directory.GetFiles(this.logsDirectory);
+            int[] ids = fileNames
+                .Where(file => file.EndsWith(".json"))
+                .Select(file => file.Remove(file.Length - 5))
+                .Select(id => int.Parse(id))
+                .ToArray();
+            return Task.FromResult((ICollection<int>)ids);
         }
 
         /// <inheritdoc/>
-        public Task<string> GetLogAsync(int id)
+        public async Task<string> GetLogAsync(int id)
         {
             this.logger.LogDebug("Getting log content {id}", id);
-            throw new NotImplementedException();
+            string logFile = Path.Combine(this.logsDirectory, id + ".json");
+
+            if (!File.Exists(logFile))
+            {
+                throw new FileNotFoundException($"The log file at \"{logFile}\" does not exist.");
+            }
+
+            return await File.ReadAllTextAsync(logFile);
         }
 
         /// <inheritdoc/>
-        public Task SaveLogAsync(string content, int id)
+        public async Task SaveLogAsync(string content, int id)
         {
             this.logger.LogDebug("Saving log {id}", id);
-            throw new NotImplementedException();
+            string logFile = Path.Combine(this.logsDirectory, id + ".json");
+
+            // Create the logs directory if it doesn't already exist.
+            if (!Directory.Exists(this.logsDirectory))
+            {
+                Directory.CreateDirectory(this.logsDirectory);
+            }
+
+            // Check if the log already exists.
+            if (File.Exists(logFile))
+            {
+                throw new IOException($"The log file at \"{logFile}\" already exists.");
+            }
+
+            await File.WriteAllTextAsync(logFile, content);
         }
     }
 }
