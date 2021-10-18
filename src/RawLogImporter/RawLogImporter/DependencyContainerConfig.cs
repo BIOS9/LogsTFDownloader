@@ -36,6 +36,8 @@ namespace LogChugger
                 .Get<DelayImportSchedulerSettings>());
 
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
+            builder.RegisterInstance(configuration.GetRequiredSection(PolicedLogsTFApiClientSettings.SectionName)
+                .Get<PolicedLogsTFApiClientSettings>());
 
             builder.RegisterType<MySqlMetadataRepository>().As<IRawLogMetadataRepository>();
             builder.RegisterInstance(configuration.GetRequiredSection(MySqlMetadataRepositorySettings.SectionName)

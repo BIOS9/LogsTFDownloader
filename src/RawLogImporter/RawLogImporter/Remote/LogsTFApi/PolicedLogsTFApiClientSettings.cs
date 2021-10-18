@@ -12,6 +12,11 @@ namespace LogChugger.Remote.LogsTFApi
     internal class PolicedLogsTFApiClientSettings
     {
         /// <summary>
+        /// The section name to be used in the config file.
+        /// </summary>
+        public const string SectionName = "LogsTFApiPolicer";
+
+        /// <summary>
         /// Gets or sets the number of requests that can be made before reaching the <see cref="AverageRequestInterval"/>.
         /// </summary>
         public int BurstRequestLimit { get; set; }
