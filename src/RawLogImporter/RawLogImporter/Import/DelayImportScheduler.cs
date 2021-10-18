@@ -27,8 +27,8 @@ namespace LogChugger.Import
             IRawLogMetadataRepository metadataRepository)
         {
             logger = loggerFactory.CreateLogger(nameof(DelayImportScheduler));
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings)); ;
-            this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource)); ;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource));
             this.metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
         }
 
