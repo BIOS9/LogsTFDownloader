@@ -24,6 +24,13 @@ namespace LogChugger.Import
         private readonly object startStopLock = new object();
         private CancellationTokenSource stopTokenSource = null;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DelayImportScheduler"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">Logger factory used to create a logger.</param>
+        /// <param name="settings">Import scheduler settings.</param>
+        /// <param name="remoteLogSource">The remote log source to use to fetch logs.</param>
+        /// <param name="metadataRepository">The metadata repository that stores the raw log information.</param>
         public DelayImportScheduler(
             ILoggerFactory loggerFactory,
             DelayImportSchedulerSettings settings,

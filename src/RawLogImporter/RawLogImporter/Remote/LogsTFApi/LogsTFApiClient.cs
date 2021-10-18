@@ -21,6 +21,10 @@ namespace LogChugger.Remote.LogsTFApi
         private const string SingleLogEndpoint = "https://logs.tf/api/v1/log/{0}";
         private readonly ILogger logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LogsTFApiClient"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">Logger factory to use to create a new logger.</param>
         public LogsTFApiClient(ILoggerFactory loggerFactory)
         {
             this.logger = loggerFactory.CreateLogger(nameof(LogsTFApiClient));
@@ -39,7 +43,9 @@ namespace LogChugger.Remote.LogsTFApi
                 HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
                 this.logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
 
-                // TODO: Actually do something with the response code.
+                /*
+                 * TODO: Actually do something with the response code.
+                 */
 
                 // Deserialize response and find the log ID.
                 JsonElement result = await JsonSerializer.DeserializeAsync<JsonElement>(response.GetResponseStream());
@@ -72,7 +78,9 @@ namespace LogChugger.Remote.LogsTFApi
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
             this.logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
 
-            // TODO: Actually do something with the response code.
+            /*
+             * TODO: Actually do something with the response code.
+             */
 
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {

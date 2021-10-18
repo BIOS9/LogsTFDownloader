@@ -14,6 +14,10 @@ namespace LogChugger.Storage
     {
         private readonly MySqlMetadataRepositorySettings settings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MySqlMetadataRepository"/> class.
+        /// </summary>
+        /// <param name="settings">MySql settings.</param>
         public MySqlMetadataRepository(MySqlMetadataRepositorySettings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));

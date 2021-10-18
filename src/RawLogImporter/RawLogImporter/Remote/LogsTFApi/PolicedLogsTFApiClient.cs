@@ -11,6 +11,10 @@ namespace LogChugger.Remote.LogsTFApi
     /// </summary>
     internal class PolicedLogsTFApiClient : LogsTFApiClient
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PolicedLogsTFApiClient"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory to be used to create a new logger.</param>
         public PolicedLogsTFApiClient(ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {

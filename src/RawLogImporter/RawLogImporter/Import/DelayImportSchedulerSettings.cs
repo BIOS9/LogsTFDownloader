@@ -11,8 +11,14 @@ namespace LogChugger.Import
     /// </summary>
     internal class DelayImportSchedulerSettings
     {
+        /// <summary>
+        /// The section name to be used in the config file.
+        /// </summary>
         public const string SectionName = "DelayImportScheduler";
 
+        /// <summary>
+        /// Gets or sets the amount of time to wait between imports.
+        /// </summary>
         public TimeSpan ImportDelay { get; set; }
     }
 }
