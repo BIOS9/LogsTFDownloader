@@ -42,7 +42,7 @@ namespace LogChugger.Storage
         public Task DeleteLogAsync(int id);
 
         /// <summary>
-        /// Returns the IDs of all logs present in the repository,
+        /// Returns the IDs of all logs present in the repository.
         /// </summary>
         /// <returns>A collection of log ID integers.</returns>
         public Task<ICollection<int>> GetAllLogIDsAsync();
