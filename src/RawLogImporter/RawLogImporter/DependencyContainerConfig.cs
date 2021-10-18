@@ -36,8 +36,8 @@ namespace LogChugger
             builder.RegisterInstance(loggerFactory).SingleInstance();
 
             builder.RegisterType<DelayImportScheduler>().As<IRawLogImportScheduler>();
-            builder.RegisterInstance(configuration.GetRequiredSection(DualLogImporterSettings.SectionName)
-                .Get<DualLogImporterSettings>());
+            builder.RegisterInstance(configuration.GetRequiredSection(DelayImportSchedulerSettings.SectionName)
+                .Get<DelayImportSchedulerSettings>());
 
             builder.RegisterType<DualLogImporter>().As<IRawLogImporter>();
             builder.RegisterInstance(configuration.GetRequiredSection(DualLogImporterSettings.SectionName)

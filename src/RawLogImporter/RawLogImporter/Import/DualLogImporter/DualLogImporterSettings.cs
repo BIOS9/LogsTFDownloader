@@ -2,10 +2,8 @@
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Import.DualLogImporterSettings
+namespace LogChugger.Import.DualLogImporter
 {
-    using System;
-
     /// <summary>
     /// Settings for <see cref="DualLogImporterSettings"/>.
     /// </summary>
