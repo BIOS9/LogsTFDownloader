@@ -36,10 +36,12 @@ namespace LogChugger
             builder.RegisterInstance(loggerFactory).SingleInstance();
 
             builder.RegisterType<DelayImportScheduler>().As<IRawLogImportScheduler>();
-            builder.RegisterInstance(configuration.GetRequiredSection(DelayImportSchedulerSettings.SectionName)
-                .Get<DelayImportSchedulerSettings>());
+            builder.RegisterInstance(configuration.GetRequiredSection(DualLogImporterSettings.SectionName)
+                .Get<DualLogImporterSettings>());
 
             builder.RegisterType<DualLogImporter>().As<IRawLogImporter>();
+            builder.RegisterInstance(configuration.GetRequiredSection(DualLogImporterSettings.SectionName)
+                .Get<DualLogImporterSettings>());
 
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
             builder.RegisterInstance(configuration.GetRequiredSection(PolicedLogsTFApiClientSettings.SectionName)

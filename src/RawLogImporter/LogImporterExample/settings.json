@@ -11,5 +11,8 @@
   },
   "DiskLogRepository": {
     "LogsDirectoryPath": "logs"
+  },
+  "DualLogImporter": {
+    "DuplicateCheckHashAlgorithm": "SHA256"
   }
 }
