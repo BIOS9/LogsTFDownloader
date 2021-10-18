@@ -1,46 +1,23 @@
-﻿// <copyright file="RawLogMetadata.cs" company="CIA">
+﻿// <copyright file="RawLog.cs" company="CIA">
 // Copyright (c) CIA. All rights reserved.
 // </copyright>
 
-namespace LogChugger.Storage
+namespace LogChugger.Storage.MySqlMetadataRepository.Models
 {
     using System;
-    using System.Collections.Generic;
+    using Dapper.Contrib.Extensions;
+    using static LogChugger.Storage.RawLogMetadata;
 
     /// <summary>
-    /// Represents a record in the raw log metadata repository.
+    /// A model to represent a single row in the MySql database.
     /// </summary>
-    public class RawLogMetadata
+    [Table(MySqlMetadataRepository.RawLogTable)]
+    internal class RawLog
     {
-        /// <summary>
-        /// Import status of a log.
-        /// </summary>
-        public enum RawLogImportStatus
-        {
-            /// <summary>
-            /// Log is queued to be imported.
-            /// </summary>
-            ToImport,
-
-            /// <summary>
-            /// Log has been successfully imported.
-            /// </summary>
-            Succeed,
-
-            /// <summary>
-            /// Log import was attempted and failed.
-            /// </summary>
-            Failed,
-
-            /// <summary>
-            /// Log was not found on the remote log source.
-            /// </summary>
-            NotFound,
-        }
-
         /// <summary>
         /// Gets or sets the unique log ID.
         /// </summary>
+        [Key]
         public int Id { get; set; }
 
         /// <summary>
@@ -62,7 +39,7 @@ namespace LogChugger.Storage
         /// <summary>
         /// Gets or sets IDs for duplicate logs.
         /// </summary>
-        public ICollection<int> DuplicateLogs { get; set; }
+        public int? DuplicateId { get; set; }
 
         /// <summary>
         /// Gets or sets the time that the log was added or updated.
