@@ -13,14 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RawLogImporter\LogChugger.csproj" />
+    <ProjectReference Include="..\LogChugger\LogChugger.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="settings.dev.json">
+    <None Update="settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="settings.json">
+    <None Update="settings.example.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
