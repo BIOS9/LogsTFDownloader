@@ -55,16 +55,6 @@ namespace LogChugger.Storage
         public string FailureMessage { get; set; }
 
         /// <summary>
-        /// Gets or sets the hash of the log used for duplicate detection.
-        /// </summary>
-        public byte[] Hash { get; set; }
-
-        /// <summary>
-        /// Gets or sets IDs for duplicate logs.
-        /// </summary>
-        public ICollection<int> DuplicateLogs { get; set; }
-
-        /// <summary>
         /// Gets or sets the time that the log was added or updated.
         /// </summary>
         public DateTime Time { get; set; }

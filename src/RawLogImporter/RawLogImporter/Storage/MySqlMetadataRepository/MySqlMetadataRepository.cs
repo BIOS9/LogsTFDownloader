@@ -23,11 +23,6 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         /// </summary>
         internal const string RawLogTable = "logsraw";
 
-        /// <summary>
-        /// The MySql table for log duplicate IDs.
-        /// </summary>
-        internal const string DuplicatesTable = "logsrawduplicates";
-
         private readonly MySqlMetadataRepositorySettings settings;
         private readonly ILogger logger;
 
@@ -54,32 +49,8 @@ namespace LogChugger.Storage.MySqlMetadataRepository
                 Id = metadata.Id,
                 ImportStatus = metadata.ImportStatus.ToString(),
                 FailureMessage = metadata.FailureMessage,
-                Hash = metadata.Hash,
-                DuplicateId = null,
                 Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
             };
-
-            if (metadata.DuplicateLogs?.Any() ?? false)
-            {
-                int duplicateId = await connection.QuerySingleAsync<int>(
-                    $"INSERT INTO `{DuplicatesTable}` (`id`) VALUES (NULL);");
-                rawLog.DuplicateId = duplicateId;
-
-                foreach (int duplicateLog in metadata.DuplicateLogs)
-                {
-                    int rowsUpdated = await connection.ExecuteAsync(
-                        $"UPDATE `{RawLogTable}` SET `DuplicateId` = @duplicateId WHERE `id` = @logId",
-                        new
-                        {
-                            logId = duplicateLog,
-                            duplicateId,
-                        });
-                    if (rowsUpdated == 0)
-                    {
-                        throw new KeyNotFoundException("Duplicate ID was not updated.");
-                    }
-                }
-            }
 
             if (!await connection.UpdateAsync(rawLog))
             {
@@ -101,8 +72,6 @@ namespace LogChugger.Storage.MySqlMetadataRepository
                 Id = metadata.Id,
                 ImportStatus = RawLogMetadata.RawLogImportStatus.ToImport.ToString(),
                 FailureMessage = null,
-                Hash = null,
-                DuplicateId = null,
                 Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
             };
 
@@ -110,31 +79,16 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<int>> GetIdsByHashAsync(byte[] hash)
-        {
-            using var connection = new MySqlConnection(this.settings.ConnectionString);
-            IEnumerable<int> ids = await connection.QueryAsync<int>(
-                $"SELECT `id` FROM `{RawLogTable}` WHERE `hash` = @hash",
-                new { hash });
-            return ids.AsList();
-        }
-
-        /// <inheritdoc/>
         public async Task<RawLogMetadata> GetMetadataByIdAsync(int id)
         {
             using var connection = new MySqlConnection(this.settings.ConnectionString);
             Models.RawLog log = await connection.GetAsync<Models.RawLog>(id);
-            IEnumerable<int> duplicateIds = await connection.QueryAsync<int>(
-                $"SELECT `id` FROM `{RawLogTable}` WHERE `duplicateId` = @duplicateId",
-                new { duplicateId = log.DuplicateId });
 
             return new RawLogMetadata
             {
                 Id = log.Id,
                 ImportStatus = (RawLogMetadata.RawLogImportStatus)Enum.Parse(typeof(RawLogMetadata.RawLogImportStatus), log.ImportStatus),
                 FailureMessage = log.FailureMessage,
-                Hash = log.Hash,
-                DuplicateLogs = duplicateIds.AsList(),
                 Time = DateTimeOffset.FromUnixTimeSeconds(log.Time).DateTime,
             };
         }

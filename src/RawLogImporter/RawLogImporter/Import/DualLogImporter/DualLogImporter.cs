@@ -27,7 +27,6 @@ namespace LogChugger.Import.DualLogImporter
         private readonly IRemoteLogSource remoteLogSource;
         private readonly IRawLogMetadataRepository metadataRepository;
         private readonly IRawLogRepository logRepository;
-        private readonly DualLogImporterSettings settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DualLogImporter"/> class.
@@ -36,19 +35,16 @@ namespace LogChugger.Import.DualLogImporter
         /// <param name="remoteLogSource">Remote log source used to get missing logs.</param>
         /// <param name="metadataRepository">Metadata repo to save imported log metadata to.</param>
         /// <param name="logRepository">Log repo to save raw imported logs to.</param>
-        /// <param name="settings">Settings for <see cref="DualLogImporter"/>.</param>
         public DualLogImporter(
             ILoggerFactory loggerFactory,
             IRemoteLogSource remoteLogSource,
             IRawLogMetadataRepository metadataRepository,
-            IRawLogRepository logRepository,
-            DualLogImporterSettings settings)
+            IRawLogRepository logRepository)
         {
             this.logger = loggerFactory.CreateLogger(nameof(DualLogImporter));
             this.remoteLogSource = remoteLogSource ?? throw new ArgumentNullException(nameof(remoteLogSource));
             this.metadataRepository = metadataRepository ?? throw new ArgumentNullException(nameof(metadataRepository));
             this.logRepository = logRepository ?? throw new ArgumentNullException(nameof(logRepository));
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
         /// <inheritdoc/>
@@ -60,17 +56,12 @@ namespace LogChugger.Import.DualLogImporter
                 Id = id,
                 ImportStatus = RawLogMetadata.RawLogImportStatus.Succeeded,
                 FailureMessage = null,
-                DuplicateLogs = null,
-                Hash = null,
                 Time = DateTime.Now,
             };
 
             try
             {
-                string logContent = await this.FindLogContentAsync(id);
-                DuplicateSearchResult duplicateSearchResult = await this.FindDuplicateLogsAsync(id, logContent);
-                metadata.DuplicateLogs = duplicateSearchResult.DuplicateLogs;
-                metadata.Hash = duplicateSearchResult.LogHash;
+                _ = await this.FindAndSaveLogContentAsync(id);
             }
             catch (KeyNotFoundException ex)
             {
@@ -90,10 +81,11 @@ namespace LogChugger.Import.DualLogImporter
         /// <summary>
         /// Finds the log ID content from either the local repository (preferred)
         /// or the remote log source.
+        /// Ensures the log content is saved locally.
         /// </summary>
         /// <param name="id">Unique log ID.</param>
         /// <returns>Log content string.</returns>
-        private async Task<string> FindLogContentAsync(int id)
+        private async Task<string> FindAndSaveLogContentAsync(int id)
         {
             string logContent;
             bool isLocal; // Whether the log is in the local repo or not.
@@ -133,69 +125,6 @@ namespace LogChugger.Import.DualLogImporter
             }
 
             return logContent;
-        }
-
-        /// <summary>
-        /// Finds duplicate logs in the local repository and also calculates the hash
-        /// to be saved when the log is imported.
-        /// </summary>
-        /// <param name="id">The unique log ID.</param>
-        /// <param name="content">JSON content of the log.</param>
-        /// <returns>
-        /// A <see cref="DuplicateSearchResult"/> which contains the IDs of duplicate logs
-        /// and the log hash.
-        /// </returns>
-        private async Task<DuplicateSearchResult> FindDuplicateLogsAsync(int id, string content)
-        {
-            byte[] contentBytes = Encoding.Unicode.GetBytes(content);
-            byte[] hashBytes;
-            using (HashAlgorithm hash = HashAlgorithm.Create(this.settings.DuplicateCheckHashAlgorithm))
-            {
-                hashBytes = hash.ComputeHash(contentBytes);
-            }
-
-            this.logger.LogTrace(
-                "Finding duplicates for log {id} {hashAlgo} hash {hash}.",
-                id,
-                this.settings.DuplicateCheckHashAlgorithm,
-                Convert.ToBase64String(hashBytes));
-
-            ICollection<int> potentialDuplicates = await this.metadataRepository.GetIdsByHashAsync(hashBytes);
-            this.logger.LogTrace(
-                "Potential duplicates for log {id}: {duplicates}",
-                id,
-                potentialDuplicates);
-
-            List<int> duplicates = new List<int>();
-
-            foreach (int potentialDuplicate in potentialDuplicates)
-            {
-                // If log doesn't exist in local repo, skip.
-                if (!await this.logRepository.DoesLogExistAsync(potentialDuplicate))
-                {
-                    continue;
-                }
-
-                // Check that the content actually matches.
-                string potentialDuplicateContent = await this.logRepository.GetLogAsync(potentialDuplicate);
-                if (content.Equals(potentialDuplicateContent))
-                {
-                    duplicates.Add(potentialDuplicate);
-                }
-            }
-
-            return new DuplicateSearchResult
-            {
-                DuplicateLogs = duplicates,
-                LogHash = hashBytes,
-            };
-        }
-
-        private struct DuplicateSearchResult
-        {
-            public ICollection<int> DuplicateLogs { get; set; }
-
-            public byte[] LogHash { get; set; }
         }
     }
 }
