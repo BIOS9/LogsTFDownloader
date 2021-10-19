@@ -8,8 +8,7 @@ namespace LogChugger.Storage
     using System.Threading.Tasks;
 
     /// <summary>
-    /// A repository that stores metadata about logs such as log IDs, hashes, import status
-    /// and information about duplicate logs.
+    /// A repository that stores metadata about logs such as log IDs and import status.
     /// </summary>
     public interface IRawLogMetadataRepository
     {
@@ -26,13 +25,6 @@ namespace LogChugger.Storage
         /// <param name="id">The unique ID of the log.</param>
         /// <returns>Null or a <see cref="RawLogMetadata"/> record.</returns>
         public Task<RawLogMetadata> GetMetadataByIdAsync(int id);
-
-        /// <summary>
-        /// Gets the IDs for all logs with the same has .
-        /// </summary>
-        /// <param name="hash">The hash to search for.</param>
-        /// <returns>A collection with 0 or more log IDs.</returns>
-        public Task<ICollection<int>> GetIdsByHashAsync(byte[] hash);
 
         /// <summary>
         /// Updates raw log metadata in the repository.
@@ -58,7 +50,7 @@ namespace LogChugger.Storage
         /// Gets all of the logs that are set to the specified import status.
         /// </summary>
         /// <param name="status">The import status to filter for.</param>
-        /// <returns>A collection of integerLogIDs</returns>
+        /// <returns>A collection of integerLogIDs.</returns>
         public Task<ICollection<int>> GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus status);
     }
 }

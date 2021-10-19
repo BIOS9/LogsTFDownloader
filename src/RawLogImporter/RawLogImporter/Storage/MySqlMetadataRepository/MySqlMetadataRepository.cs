@@ -23,11 +23,6 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         /// </summary>
         internal const string RawLogTable = "logsraw";
 
-        /// <summary>
-        /// The MySql table for log duplicate IDs.
-        /// </summary>
-        internal const string DuplicatesTable = "logsrawduplicates";
-
         private readonly MySqlMetadataRepositorySettings settings;
         private readonly ILogger logger;
 
@@ -54,32 +49,8 @@ namespace LogChugger.Storage.MySqlMetadataRepository
                 Id = metadata.Id,
                 ImportStatus = metadata.ImportStatus.ToString(),
                 FailureMessage = metadata.FailureMessage,
-                Hash = metadata.Hash,
-                DuplicateId = null,
                 Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
             };
-
-            if (metadata.DuplicateLogs?.Any() ?? false)
-            {
-                int duplicateId = await connection.QuerySingleAsync<int>(
-                    $"INSERT INTO `{DuplicatesTable}` (`id`) VALUES (NULL);");
-                rawLog.DuplicateId = duplicateId;
-
-                foreach (int duplicateLog in metadata.DuplicateLogs)
-                {
-                    int rowsUpdated = await connection.ExecuteAsync(
-                        $"UPDATE `{RawLogTable}` SET `DuplicateId` = @duplicateId WHERE `id` = @logId",
-                        new
-                        {
-                            logId = duplicateLog,
-                            duplicateId,
-                        });
-                    if (rowsUpdated == 0)
-                    {
-                        throw new KeyNotFoundException("Duplicate ID was not updated.");
-                    }
-                }
-            }
 
             if (!await connection.UpdateAsync(rawLog))
             {

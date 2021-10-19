@@ -32,16 +32,6 @@ namespace LogChugger.Storage.MySqlMetadataRepository.Models
         public string FailureMessage { get; set; }
 
         /// <summary>
-        /// Gets or sets the hash of the log used for duplicate detection.
-        /// </summary>
-        public byte[] Hash { get; set; }
-
-        /// <summary>
-        /// Gets or sets IDs for duplicate logs.
-        /// </summary>
-        public int? DuplicateId { get; set; }
-
-        /// <summary>
         /// Gets or sets the time that the log was added or updated.
         /// </summary>
         public long Time { get; set; }
