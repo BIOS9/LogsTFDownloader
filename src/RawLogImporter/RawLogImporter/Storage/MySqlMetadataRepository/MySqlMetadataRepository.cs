@@ -6,6 +6,7 @@ namespace LogChugger.Storage.MySqlMetadataRepository
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Dapper;
     using Dapper.Contrib.Extensions;
@@ -19,7 +20,8 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         /// <summary>
         /// The MySql table for raw log metadata.
         /// </summary>
-        internal const string RawLogTable = "RawLogs";
+        internal const string RawLogTable = "logsraw";
+        internal const string DuplicatesTable = "logsrawduplicates";
 
         private readonly MySqlMetadataRepositorySettings settings;
 
@@ -30,6 +32,44 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         public MySqlMetadataRepository(MySqlMetadataRepositorySettings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        }
+
+        /// <inheritdoc/>
+        public async Task AddMetadata(RawLogMetadata metadata)
+        {
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            using var transaction = await connection.BeginTransactionAsync();
+
+            Models.RawLog rawLog = new Models.RawLog
+            {
+                Id = metadata.Id,
+                ImportStatus = metadata.ImportStatus,
+                FailureMessage = metadata.FailureMessage,
+                Hash = metadata.Hash,
+                DuplicateId = null,
+                Time = metadata.Time,
+            };
+
+            if (metadata.DuplicateLogs.Any())
+            {
+                int duplicateId = await connection.QuerySingleAsync<int>(
+                    $"INSERT INTO `{DuplicatesTable}` (`id`) VALUES (NULL);");
+                rawLog.DuplicateId = duplicateId;
+
+                foreach (int duplicateLog in metadata.DuplicateLogs)
+                {
+                    await connection.ExecuteAsync(
+                        $"UPDATE `{RawLogTable}` SET `DuplicateId` = @duplicateId WHERE `id` = @logId",
+                        new
+                        {
+                            logId = duplicateLog,
+                            duplicateId,
+                        });
+                }
+            }
+
+            await connection.InsertAsync(rawLog);
+            await transaction.CommitAsync();
         }
 
         /// <inheritdoc/>

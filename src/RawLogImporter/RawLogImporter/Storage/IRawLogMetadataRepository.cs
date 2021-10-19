@@ -33,5 +33,12 @@ namespace LogChugger.Storage
         /// <param name="hash">The hash to search for.</param>
         /// <returns>A collection with 0 or more log IDs.</returns>
         public Task<ICollection<int>> GetIdsByHashAsync(byte[] hash);
+
+        /// <summary>
+        /// Adds raw log metadata to the repository.
+        /// </summary>
+        /// <param name="metadata">Metadata to add.</param>
+        /// <returns>Asynchronous task.</returns>
+        public Task AddMetadata(RawLogMetadata metadata);
     }
 }
