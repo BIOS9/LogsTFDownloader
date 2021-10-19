@@ -6,6 +6,7 @@ namespace LogChugger.Import.DualLogImporter
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
     using System.Text.Json;
@@ -54,10 +55,36 @@ namespace LogChugger.Import.DualLogImporter
         public async Task ImportLogAsync(int id)
         {
             this.logger.LogDebug("Importing log ID: {ID}", id);
-            string logContent = await this.FindLogContentAsync(id);
-            DuplicateSearchResult duplicateSearchResult = await this.FindDuplicateLogsAsync(id, logContent);
+            RawLogMetadata metadata = new RawLogMetadata
+            {
+                Id = id,
+                ImportStatus = RawLogMetadata.RawLogImportStatus.Succeeded,
+                FailureMessage = null,
+                DuplicateLogs = null,
+                Hash = null,
+                Time = DateTime.Now,
+            };
 
-            throw new System.NotImplementedException();
+            try
+            {
+                string logContent = await this.FindLogContentAsync(id);
+                DuplicateSearchResult duplicateSearchResult = await this.FindDuplicateLogsAsync(id, logContent);
+                metadata.DuplicateLogs = duplicateSearchResult.DuplicateLogs;
+                metadata.Hash = duplicateSearchResult.LogHash;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                this.logger.LogDebug("Log missing {id} {status}", id, ex.Message);
+                metadata.ImportStatus = RawLogMetadata.RawLogImportStatus.NotFound;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError("Log {id} import failed: {message} {stacktrace}", id, ex.Message, ex.StackTrace);
+                metadata.ImportStatus = RawLogMetadata.RawLogImportStatus.Failed;
+                metadata.FailureMessage = ex.Message;
+            }
+
+            await this.metadataRepository.UpdateMetadata(metadata);
         }
 
         /// <summary>
@@ -89,6 +116,10 @@ namespace LogChugger.Import.DualLogImporter
             try
             {
                 _ = JsonDocument.Parse(logContent);
+                if (!isLocal)
+                {
+                    await this.logRepository.SaveLogAsync(logContent, id);
+                }
             }
             catch (JsonException ex)
             {
@@ -132,11 +163,30 @@ namespace LogChugger.Import.DualLogImporter
             ICollection<int> potentialDuplicates = await this.metadataRepository.GetIdsByHashAsync(hashBytes);
             this.logger.LogTrace(
                 "Potential duplicates for log {id}: {duplicates}",
+                id,
                 potentialDuplicates);
+
+            List<int> duplicates = new List<int>();
+
+            foreach (int potentialDuplicate in potentialDuplicates)
+            {
+                // If log doesn't exist in local repo, skip.
+                if (!await this.logRepository.DoesLogExistAsync(potentialDuplicate))
+                {
+                    continue;
+                }
+
+                // Check that the content actually matches.
+                string potentialDuplicateContent = await this.logRepository.GetLogAsync(potentialDuplicate);
+                if (content.Equals(potentialDuplicateContent))
+                {
+                    duplicates.Add(potentialDuplicate);
+                }
+            }
 
             return new DuplicateSearchResult
             {
-                DuplicateLogs = new List<int>(),
+                DuplicateLogs = duplicates,
                 LogHash = hashBytes,
             };
         }
