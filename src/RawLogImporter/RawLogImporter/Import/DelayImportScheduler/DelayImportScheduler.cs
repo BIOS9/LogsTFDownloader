@@ -5,7 +5,10 @@
 namespace LogChugger.Import.DelayImportScheduler
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using LogChugger.Remote;
@@ -65,9 +68,27 @@ namespace LogChugger.Import.DelayImportScheduler
                 try
                 {
                     // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
-                    int latestLogID = await this.remoteLogSource.GetLatestLogIDAsync(DateTime.Now - TimeSpan.FromHours(1));
-                    this.logger.LogInformation(latestLogID.ToString());
-                    await this.logImporter.ImportLogAsync(latestLogID);
+                    int latestRemoteLogId = await this.remoteLogSource.GetLatestLogIdAsync(DateTime.Now - TimeSpan.FromHours(1));
+                    int latestLocalLogId = await this.metadataRepository.GetLatestLogIdAsync() ?? 0;
+                    this.logger.LogDebug("Latest remote ID: {remote}, latest local id: {local}", latestRemoteLogId, latestLocalLogId);
+
+                    this.logger.LogDebug("Queueing missing logs for import.");
+                    for (int i = latestLocalLogId + 1; i <= latestRemoteLogId; ++i)
+                    {
+                        await this.metadataRepository.AddToDownloadMetadataAsync(new ToDownloadRawLogMetadata
+                        {
+                            Id = i,
+                            Time = DateTime.Now,
+                        });
+                    }
+
+                    ICollection<int> toImportLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.ToImport);
+                    ICollection<int> failedLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.Failed);
+                    foreach (int id in failedLogs.Concat(toImportLogs))
+                    {
+                        await this.logImporter.ImportLogAsync(id);
+                    }
+
                     await Task.Delay(this.settings.ImportDelay);
                 }
                 catch (IOException ex)
