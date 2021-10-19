@@ -40,11 +40,11 @@ namespace LogChugger.Remote.LogsTFApi
         /// </summary>
         /// <param name="ignorePast">Ignores any logs created past this date.</param>
         /// <returns>Latest log ID.</returns>
-        public override async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
+        public override async Task<int> GetLatestLogIdAsync(DateTime ignorePast)
         {
             await this.requestTokenBucket.WaitAsync();
             this.logger.LogTrace("Used one request token. Current count: {count}", this.requestTokenBucket.CurrentCount);
-            return await base.GetLatestLogIDAsync(ignorePast);
+            return await base.GetLatestLogIdAsync(ignorePast);
         }
 
         /// <summary>

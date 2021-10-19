@@ -17,13 +17,13 @@ namespace LogChugger.Storage.MySqlMetadataRepository.Models
         /// <summary>
         /// Gets or sets the unique log ID.
         /// </summary>
-        [Key]
+        [ExplicitKey]
         public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the current import status of this log.
         /// </summary>
-        public RawLogImportStatus ImportStatus { get; set; }
+        public string ImportStatus { get; set; }
 
         /// <summary>
         /// Gets or sets the failure message.
@@ -44,6 +44,6 @@ namespace LogChugger.Storage.MySqlMetadataRepository.Models
         /// <summary>
         /// Gets or sets the time that the log was added or updated.
         /// </summary>
-        public DateTime Time { get; set; }
+        public long Time { get; set; }
     }
 }
