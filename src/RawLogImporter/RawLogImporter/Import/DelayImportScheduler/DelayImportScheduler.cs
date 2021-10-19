@@ -67,28 +67,31 @@ namespace LogChugger.Import.DelayImportScheduler
             {
                 try
                 {
+                    this.logger.LogInformation("Starting import.");
+
                     // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
                     int latestRemoteLogId = await this.remoteLogSource.GetLatestLogIdAsync(DateTime.Now - TimeSpan.FromHours(1));
                     int latestLocalLogId = await this.metadataRepository.GetLatestLogIdAsync() ?? 0;
-                    this.logger.LogDebug("Latest remote ID: {remote}, latest local id: {local}", latestRemoteLogId, latestLocalLogId);
+                    this.logger.LogInformation("Latest remote ID: {remote}, latest local id: {local}. Approximately {missing} logs to download.", latestRemoteLogId, latestLocalLogId, latestRemoteLogId - latestLocalLogId);
 
                     this.logger.LogDebug("Queueing missing logs for import.");
-                    for (int i = latestLocalLogId + 1; i <= latestRemoteLogId; ++i)
-                    {
-                        await this.metadataRepository.AddToDownloadMetadataAsync(new ToDownloadRawLogMetadata
+
+                    DateTime now = DateTime.Now;
+                    IEnumerable<Task> addMetadataTasks = Enumerable.Range(latestLocalLogId + 1, latestRemoteLogId - latestLocalLogId + 1)
+                        .Select(id => this.metadataRepository.AddToDownloadMetadataAsync(new ToDownloadRawLogMetadata
                         {
-                            Id = i,
-                            Time = DateTime.Now,
-                        });
-                    }
+                            Id = id,
+                            Time = now,
+                        }));
+                    await Task.WhenAll(addMetadataTasks);
 
                     ICollection<int> toImportLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.ToImport);
                     ICollection<int> failedLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.Failed);
-                    foreach (int id in failedLogs.Concat(toImportLogs))
-                    {
-                        await this.logImporter.ImportLogAsync(id);
-                    }
 
+                    IEnumerable<Task> logImportTasks = failedLogs.Concat(toImportLogs).Select(id => this.logImporter.ImportLogAsync(id));
+                    await Task.WhenAll(logImportTasks);
+
+                    this.logger.LogInformation("Import finished.");
                     await Task.Delay(this.settings.ImportDelay);
                 }
                 catch (IOException ex)
