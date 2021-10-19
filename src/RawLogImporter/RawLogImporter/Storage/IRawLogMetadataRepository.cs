@@ -34,11 +34,11 @@ namespace LogChugger.Storage
         public Task UpdateMetadata(RawLogMetadata metadata);
 
         /// <summary>
-        /// Adds a metadata record marked as to-download.
+        /// Adds one or more metadata records marked as to-download.
         /// </summary>
         /// <param name="metadata">Metadata to add.</param>
         /// <returns>Asynchronous task.</returns>
-        public Task AddToDownloadMetadataAsync(ToDownloadRawLogMetadata metadata);
+        public Task AddToDownloadMetadataAsync(params ToDownloadRawLogMetadata[] metadata);
 
         /// <summary>
         /// Gets the latest log ID in the repository.

@@ -77,13 +77,13 @@ namespace LogChugger.Import.DelayImportScheduler
                     this.logger.LogDebug("Queueing missing logs for import.");
 
                     DateTime now = DateTime.Now;
-                    IEnumerable<Task> addMetadataTasks = Enumerable.Range(latestLocalLogId + 1, latestRemoteLogId - latestLocalLogId + 1)
-                        .Select(id => this.metadataRepository.AddToDownloadMetadataAsync(new ToDownloadRawLogMetadata
+                    IEnumerable<ToDownloadRawLogMetadata> metadata = Enumerable.Range(latestLocalLogId + 1, latestRemoteLogId - latestLocalLogId + 1)
+                        .Select(id => new ToDownloadRawLogMetadata
                         {
                             Id = id,
                             Time = now,
-                        }));
-                    await Task.WhenAll(addMetadataTasks);
+                        });
+                    await this.metadataRepository.AddToDownloadMetadataAsync(metadata.ToArray());
 
                     ICollection<int> toImportLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.ToImport);
                     ICollection<int> failedLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.Failed);

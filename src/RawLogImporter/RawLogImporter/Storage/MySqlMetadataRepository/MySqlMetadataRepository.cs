@@ -61,21 +61,24 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         }
 
         /// <inheritdoc/>
-        public async Task AddToDownloadMetadataAsync(ToDownloadRawLogMetadata metadata)
+        public async Task AddToDownloadMetadataAsync(params ToDownloadRawLogMetadata[] metadata)
         {
-            this.logger.LogDebug("Adding to-download log {id}", metadata.Id);
             using var connection = new MySqlConnection(this.settings.ConnectionString);
             await connection.OpenAsync();
 
-            Models.RawLog rawLog = new Models.RawLog
+            foreach (ToDownloadRawLogMetadata singleMetadata in metadata)
             {
-                Id = metadata.Id,
-                ImportStatus = RawLogMetadata.RawLogImportStatus.ToImport.ToString(),
-                FailureMessage = null,
-                Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
-            };
+                this.logger.LogDebug("Adding to-download log {id}", singleMetadata.Id);
+                Models.RawLog rawLog = new Models.RawLog
+                {
+                    Id = singleMetadata.Id,
+                    ImportStatus = RawLogMetadata.RawLogImportStatus.ToImport.ToString(),
+                    FailureMessage = null,
+                    Time = new DateTimeOffset(singleMetadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
+                };
 
-            await connection.InsertAsync(rawLog);
+                await connection.InsertAsync(rawLog);
+            }
         }
 
         /// <inheritdoc/>
