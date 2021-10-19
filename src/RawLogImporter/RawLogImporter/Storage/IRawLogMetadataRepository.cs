@@ -35,10 +35,30 @@ namespace LogChugger.Storage
         public Task<ICollection<int>> GetIdsByHashAsync(byte[] hash);
 
         /// <summary>
-        /// Adds raw log metadata to the repository.
+        /// Updates raw log metadata in the repository.
+        /// </summary>
+        /// <param name="metadata">Metadata to update.</param>
+        /// <returns>Asynchronous task.</returns>
+        public Task UpdateMetadata(RawLogMetadata metadata);
+
+        /// <summary>
+        /// Adds a metadata record marked as to-download.
         /// </summary>
         /// <param name="metadata">Metadata to add.</param>
         /// <returns>Asynchronous task.</returns>
-        public Task AddMetadata(RawLogMetadata metadata);
+        public Task AddToDownloadMetadataAsync(ToDownloadRawLogMetadata metadata);
+
+        /// <summary>
+        /// Gets the latest log ID in the repository.
+        /// </summary>
+        /// <returns>An integer log ID.</returns>
+        public Task<int?> GetLatestLogIdAsync();
+
+        /// <summary>
+        /// Gets all of the logs that are set to the specified import status.
+        /// </summary>
+        /// <param name="status">The import status to filter for.</param>
+        /// <returns>A collection of integerLogIDs</returns>
+        public Task<ICollection<int>> GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus status);
     }
 }

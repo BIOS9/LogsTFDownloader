@@ -10,6 +10,7 @@ namespace LogChugger.Storage.MySqlMetadataRepository
     using System.Threading.Tasks;
     using Dapper;
     using Dapper.Contrib.Extensions;
+    using Microsoft.Extensions.Logging;
     using MySql.Data.MySqlClient;
 
     /// <summary>
@@ -21,36 +22,44 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         /// The MySql table for raw log metadata.
         /// </summary>
         internal const string RawLogTable = "logsraw";
+
+        /// <summary>
+        /// The MySql table for log duplicate IDs.
+        /// </summary>
         internal const string DuplicatesTable = "logsrawduplicates";
 
         private readonly MySqlMetadataRepositorySettings settings;
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MySqlMetadataRepository"/> class.
         /// </summary>
         /// <param name="settings">MySql settings.</param>
-        public MySqlMetadataRepository(MySqlMetadataRepositorySettings settings)
+        /// /// <param name="loggerFactory">Used to create a local logger instance.</param>
+        public MySqlMetadataRepository(MySqlMetadataRepositorySettings settings, ILoggerFactory loggerFactory)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.logger = loggerFactory.CreateLogger(nameof(MySqlMetadataRepository));
         }
 
         /// <inheritdoc/>
-        public async Task AddMetadata(RawLogMetadata metadata)
+        public async Task UpdateMetadata(RawLogMetadata metadata)
         {
             using var connection = new MySqlConnection(this.settings.ConnectionString);
+            await connection.OpenAsync();
             using var transaction = await connection.BeginTransactionAsync();
 
             Models.RawLog rawLog = new Models.RawLog
             {
                 Id = metadata.Id,
-                ImportStatus = metadata.ImportStatus,
+                ImportStatus = metadata.ImportStatus.ToString(),
                 FailureMessage = metadata.FailureMessage,
                 Hash = metadata.Hash,
                 DuplicateId = null,
-                Time = metadata.Time,
+                Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
             };
 
-            if (metadata.DuplicateLogs.Any())
+            if (metadata.DuplicateLogs?.Any() ?? false)
             {
                 int duplicateId = await connection.QuerySingleAsync<int>(
                     $"INSERT INTO `{DuplicatesTable}` (`id`) VALUES (NULL);");
@@ -58,18 +67,46 @@ namespace LogChugger.Storage.MySqlMetadataRepository
 
                 foreach (int duplicateLog in metadata.DuplicateLogs)
                 {
-                    await connection.ExecuteAsync(
+                    int rowsUpdated = await connection.ExecuteAsync(
                         $"UPDATE `{RawLogTable}` SET `DuplicateId` = @duplicateId WHERE `id` = @logId",
                         new
                         {
                             logId = duplicateLog,
                             duplicateId,
                         });
+                    if (rowsUpdated == 0)
+                    {
+                        throw new KeyNotFoundException("Duplicate ID was not updated.");
+                    }
                 }
             }
 
-            await connection.InsertAsync(rawLog);
+            if (!await connection.UpdateAsync(rawLog))
+            {
+                throw new KeyNotFoundException("Log metadata was not updated.");
+            }
+
             await transaction.CommitAsync();
+        }
+
+        /// <inheritdoc/>
+        public async Task AddToDownloadMetadataAsync(ToDownloadRawLogMetadata metadata)
+        {
+            this.logger.LogDebug("Adding to-download log {id}", metadata.Id);
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            await connection.OpenAsync();
+
+            Models.RawLog rawLog = new Models.RawLog
+            {
+                Id = metadata.Id,
+                ImportStatus = RawLogMetadata.RawLogImportStatus.ToImport.ToString(),
+                FailureMessage = null,
+                Hash = null,
+                DuplicateId = null,
+                Time = new DateTimeOffset(metadata.Time.ToUniversalTime()).ToUnixTimeSeconds(),
+            };
+
+            await connection.InsertAsync(rawLog);
         }
 
         /// <inheritdoc/>
@@ -94,11 +131,11 @@ namespace LogChugger.Storage.MySqlMetadataRepository
             return new RawLogMetadata
             {
                 Id = log.Id,
-                ImportStatus = log.ImportStatus,
+                ImportStatus = (RawLogMetadata.RawLogImportStatus)Enum.Parse(typeof(RawLogMetadata.RawLogImportStatus), log.ImportStatus),
                 FailureMessage = log.FailureMessage,
                 Hash = log.Hash,
                 DuplicateLogs = duplicateIds.AsList(),
-                Time = log.Time,
+                Time = DateTimeOffset.FromUnixTimeSeconds(log.Time).DateTime,
             };
         }
 
@@ -106,6 +143,32 @@ namespace LogChugger.Storage.MySqlMetadataRepository
         public Task<ICollection<int>> GetUnassignedLogIdsAsync(int max)
         {
             throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc/>
+        public async Task<int?> GetLatestLogIdAsync()
+        {
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            int count = await connection.QuerySingleAsync<int>(
+                $"SELECT COUNT(`id`) FROM `{RawLogTable}`;");
+            if (count == 0)
+            {
+                return null;
+            }
+
+            return await connection.QuerySingleAsync<int>(
+                $"SELECT `id` FROM `{RawLogTable}` ORDER BY `id` DESC LIMIT 1;");
+        }
+
+        /// <inheritdoc/>
+        public async Task<ICollection<int>> GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus status)
+        {
+            using var connection = new MySqlConnection(this.settings.ConnectionString);
+            IEnumerable<int> ids = await connection.QueryAsync<int>(
+                $"SELECT `id` FROM `{RawLogTable}` WHERE `ImportStatus` = @importStatus",
+                new { importStatus = status.ToString() });
+
+            return ids.ToList();
         }
     }
 }
