@@ -11,5 +11,8 @@
   },
   "DiskLogRepository": {
     "LogsDirectoryPath": "logs"
+  },
+  "Logging": {
+    "LogLevel": "Info"
   }
 }

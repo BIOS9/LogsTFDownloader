@@ -26,14 +26,7 @@ namespace LogImporterExample
               getDefaultValue: () => "settings.json");
             rootCommand.AddOption(settingsOption);
 
-            Option logLevelOption = new Option(
-              aliases: new string[] { "--log-level", "-l" },
-              description: "The logging level.",
-              argumentType: typeof(LogEventLevel),
-              getDefaultValue: () => LogEventLevel.Information);
-            rootCommand.AddOption(logLevelOption);
-
-            rootCommand.Handler = CommandHandler.Create<FileInfo, LogEventLevel>(RunLogChugger);
+            rootCommand.Handler = CommandHandler.Create<FileInfo>(RunLogChugger);
             return await rootCommand.InvokeAsync(args);
         }
 
@@ -42,17 +35,19 @@ namespace LogImporterExample
         /// </summary>
         /// <param name="settingsFile">The path to the JSON settings file.</param>
         /// <param name="logLevel">The logging level. Levels: Verbose, Debug, Information, Warning, Error, Fatal.</param>
-        private static async Task RunLogChugger(FileInfo settingsFile, LogEventLevel logLevel)
+        private static async Task RunLogChugger(FileInfo settingsFile)
         {
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .AddJsonFile(settingsFile.FullName)
+                .Build();
+
+            LogEventLevel logLevel = (LogEventLevel)Enum.Parse(typeof(LogEventLevel), config.GetSection("Logging").GetSection("LogLevel").Value);
+
             Log.Logger = new LoggerConfiguration()
               .Enrich.FromLogContext()
               .WriteTo.Console()
               .MinimumLevel.Is(logLevel)
               .CreateLogger();
-
-            IConfigurationRoot config = new ConfigurationBuilder()
-                .AddJsonFile(settingsFile.FullName)
-                .Build();
 
             RawLogManager logManager = new RawLogManager(
                 new SerilogLoggerFactory(),
