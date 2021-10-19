@@ -50,6 +50,11 @@ namespace LogChugger.Remote.LogsTFApi
 
                 // Deserialize response and find the log ID.
                 JsonElement result = await JsonSerializer.DeserializeAsync<JsonElement>(response.GetResponseStream());
+                if (!result.GetProperty("success").GetBoolean())
+                {
+                    throw new WebException("Server returned Success=false.");
+                }
+
                 JsonElement logsArray = result.GetProperty("logs");
                 foreach (JsonElement log in logsArray.EnumerateArray())
                 {
@@ -71,6 +76,7 @@ namespace LogChugger.Remote.LogsTFApi
         public virtual async Task<string> GetLogAsync(int id)
         {
             this.logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
+
             // Generated log URL and download the JSON.
             string url = string.Format(SingleLogEndpoint, id);
             this.logger.LogTrace("Downloading: {url}", url);
@@ -95,7 +101,12 @@ namespace LogChugger.Remote.LogsTFApi
             string json = await reader.ReadToEndAsync();
 
             // Deserialize response to check that it is valid JSON
-            _ = JsonSerializer.Deserialize<JsonElement>(json);
+            JsonElement element = JsonSerializer.Deserialize<JsonElement>(json);
+            if (!element.GetProperty("success").GetBoolean())
+            {
+                throw new WebException("Server returned Success=false.");
+            }
+
             return json;
         }
     }

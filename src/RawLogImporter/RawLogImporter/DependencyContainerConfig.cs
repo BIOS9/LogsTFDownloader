@@ -40,8 +40,6 @@ namespace LogChugger
                 .Get<DelayImportSchedulerSettings>());
 
             builder.RegisterType<DualLogImporter>().As<IRawLogImporter>();
-            builder.RegisterInstance(configuration.GetRequiredSection(DualLogImporterSettings.SectionName)
-                .Get<DualLogImporterSettings>());
 
             builder.RegisterType<PolicedLogsTFApiClient>().As<IRemoteLogSource>();
             builder.RegisterInstance(configuration.GetRequiredSection(PolicedLogsTFApiClientSettings.SectionName)
