@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 19, 2021 at 04:51 AM
+-- Generation Time: Oct 19, 2021 at 05:41 AM
 -- Server version: 10.4.21-MariaDB
 -- PHP Version: 8.0.11
 
@@ -42,7 +42,8 @@ CREATE TABLE `logsraw` (
 -- Indexes for table `logsraw`
 --
 ALTER TABLE `logsraw`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ImportStatus` (`ImportStatus`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
