@@ -17,7 +17,7 @@ namespace LogImporterExample
               .CreateLogger();
 
             IConfigurationRoot config = new ConfigurationBuilder()
-                .AddJsonFile("settings.dev.json")
+                .AddJsonFile("settings.json")
                 .Build();
 
             RawLogManager logManager = new RawLogManager(
