@@ -5,6 +5,7 @@
 namespace LogChugger.Remote.LogsTFApi
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Text.Json;
@@ -31,7 +32,7 @@ namespace LogChugger.Remote.LogsTFApi
         }
 
         /// <inheritdoc/>
-        public virtual async Task<int> GetLatestLogIDAsync(DateTime ignorePast)
+        public virtual async Task<int> GetLatestLogIdAsync(DateTime ignorePast)
         {
             this.logger.LogDebug("Downloading latest log ID from logs.tf. Ignoring past {ignorePast}", ignorePast);
             for (int offset = 0; ; offset += LogPageSize)
@@ -70,17 +71,25 @@ namespace LogChugger.Remote.LogsTFApi
         public virtual async Task<string> GetLogAsync(int id)
         {
             this.logger.LogDebug("Downloading log ID {id} from logs.tf.", id);
-
             // Generated log URL and download the JSON.
             string url = string.Format(SingleLogEndpoint, id);
             this.logger.LogTrace("Downloading: {url}", url);
             HttpWebRequest request = WebRequest.CreateHttp(url);
-            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            this.logger.LogTrace("Response: {code} {message}", response.StatusCode, response.StatusDescription);
+            HttpWebResponse response;
+            try
+            {
+                response = (HttpWebResponse)await request.GetResponseAsync();
+            }
+            catch (WebException ex)
+            {
+                response = (HttpWebResponse)ex.Response;
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new KeyNotFoundException(response.StatusDescription);
+                }
 
-            /*
-             * TODO: Actually do something with the response code.
-             */
+                throw ex;
+            }
 
             using StreamReader reader = new StreamReader(response.GetResponseStream());
             string json = await reader.ReadToEndAsync();
