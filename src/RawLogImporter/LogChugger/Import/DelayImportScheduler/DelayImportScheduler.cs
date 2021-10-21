@@ -72,17 +72,19 @@ namespace LogChugger.Import.DelayImportScheduler
                     // Get latest log ID that is at least 1 hour old. This is to prevent grabbing logs for running games.
                     int latestRemoteLogId = await this.remoteLogSource.GetLatestLogIdAsync(DateTime.Now - TimeSpan.FromHours(1));
                     int latestLocalLogId = await this.metadataRepository.GetLatestLogIdAsync() ?? 0;
-                    this.logger.LogInformation("Latest remote ID: {remote}, latest local id: {local}. Approximately {missing} logs to download.", latestRemoteLogId, latestLocalLogId, latestRemoteLogId - latestLocalLogId);
+                    IEnumerable<int> missingLogIds = Enumerable.Range(
+                        latestLocalLogId + 1, // Latest + 1 because the latest is already downloaded
+                        latestRemoteLogId - latestLocalLogId);
+                    this.logger.LogInformation("Latest remote ID: {remote}, latest local id: {local}. Approximately {missing} logs to download.", latestRemoteLogId, latestLocalLogId, missingLogIds.Count());
 
                     this.logger.LogDebug("Queueing missing logs for import.");
 
                     DateTime now = DateTime.Now;
-                    IEnumerable<ToDownloadRawLogMetadata> metadata = Enumerable.Range(latestLocalLogId + 1, latestRemoteLogId - latestLocalLogId + 1)
-                        .Select(id => new ToDownloadRawLogMetadata
-                        {
-                            Id = id,
-                            Time = now,
-                        });
+                    IEnumerable<ToDownloadRawLogMetadata> metadata = missingLogIds.Select(id => new ToDownloadRawLogMetadata()
+                    {
+                        Id = id,
+                        Time = now,
+                    });
                     await this.metadataRepository.AddToDownloadMetadataAsync(metadata.ToArray());
 
                     ICollection<int> toImportLogs = await this.metadataRepository.GetIdsByImportStatusAsync(RawLogMetadata.RawLogImportStatus.ToImport);
